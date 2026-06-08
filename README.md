@@ -470,7 +470,7 @@ docker logs monitor_nodered --tail 30
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/fd45779d-44a4-43b5-bf30-de16967612e1" />
 
-Bước 8. Mở Node-RED từ trình duyệt Windows
+**Bước 8. Mở Node-RED từ trình duyệt Windows**
 
 Trên Windows, mở trình duyệt và nhập:
 
@@ -479,6 +479,206 @@ http://192.168.1.99:1881
 ```
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/cb8803fd-8ee8-495b-a3b7-33a0bf994da6" />
+
+
+## PHẦN 3. Thêm MariaDB để lưu giá trị nhiệt độ tức thời
+
+1. Tạo thư mục chứa file khởi tạo database
+
+Tạo thư mục db:
+
+```
+mkdir -p db
+```
+
+Kiểm tra:
+
+```
+ls
+```
+
+<img width="1108" height="640" alt="image" src="https://github.com/user-attachments/assets/67c25ea3-9bb4-4a60-95c1-18d897586c53" />
+
+2. Tạo file SQL khởi tạo bảng
+
+Chạy:
+
+```
+nano db/init.sql
+```
+
+Dán nội dung sau:
+
+```
+CREATE DATABASE IF NOT EXISTS monitor_db;
+
+USE monitor_db;
+
+CREATE TABLE IF NOT EXISTS weather_latest (
+    id INT PRIMARY KEY,
+    city VARCHAR(100) NOT NULL,
+    temperature DECIMAL(5,2) NOT NULL,
+    status VARCHAR(30) NOT NULL,
+    observed_at DATETIME NOT NULL
+);
+
+INSERT INTO weather_latest (
+    id,
+    city,
+    temperature,
+    status,
+    observed_at
+)
+VALUES (
+    1,
+    'Thai Nguyen',
+    0,
+    'WAITING',
+    NOW()
+)
+ON DUPLICATE KEY UPDATE
+    city = VALUES(city);
+```
+
+Lưu file: 
+
+- Ctrl + O
+- Enter
+- Ctrl + X
+
+Kiểm tra lại:
+
+cat db/init.sql
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/d99454b4-191f-40b0-81fa-d60bfebff25e" />
+
+3. Tạo file .env để lưu cấu hình
+
+
+Chạy:
+
+```
+nano .env
+```
+
+Dán nội dung:
+
+```
+MARIADB_ROOT_PASSWORD=root123
+MARIADB_DATABASE=monitor_db
+MARIADB_USER=monitor_user
+MARIADB_PASSWORD=monitor123
+```
+
+Lưu file:
+
+- Ctrl + O
+- Enter
+- Ctrl + X
+
+Kiểm tra:
+
+```
+cat .env
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/1579af10-103e-422d-b7ce-6b472acb8523" />
+
+4. Tạo file .gitignore
+
+File .env chứa mật khẩu nên không được đẩy lên GitHub.
+
+Chạy:
+
+```
+nano .gitignore
+```
+
+Dán nội dung:
+
+```
+.env
+```
+
+<img width="1103" height="639" alt="image" src="https://github.com/user-attachments/assets/bc19d36e-769a-4e4d-b22c-53ec2103fa27" />
+
+Lưu lại:
+
+- Ctrl + O
+- Enter
+- Ctrl + X
+
+5. Sửa file docker-compose.yml
+
+Mở file:
+
+```
+nano docker-compose.yml
+```
+
+Xóa nội dung cũ và thay bằng toàn bộ nội dung sau:
+
+```
+services:
+  nodered:
+    image: nodered/node-red:latest
+    container_name: monitor_nodered
+    restart: unless-stopped
+    ports:
+      - "1881:1880"
+    volumes:
+      - nodered_data:/data
+    networks:
+      - monitor_network
+
+  mariadb:
+    image: mariadb:11.4
+    container_name: monitor_mariadb
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - monitor_network
+
+volumes:
+  nodered_data:
+  mariadb_data:
+
+networks:
+  monitor_network:
+    driver: bridge
+```
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c7f016ee-70c8-4ef4-a132-cbdb0fd8f5e4" />
+
+Lưu file:
+
+- Ctrl + O
+- Enter
+- Ctrl + X
+
+6. Khởi động MariaDB
+
+Chạy:
+
+```
+docker compose up -d
+```
+
+Kiểm tra:
+
+```
+docker compose ps
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/022b6aad-42e4-460c-b27f-acf95d07782e" />
+
+
 
 
 
