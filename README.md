@@ -679,13 +679,144 @@ docker compose ps
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/022b6aad-42e4-460c-b27f-acf95d07782e" />
 
 
+## PHẦN 4. Thêm InfluxDB để lưu dữ liệu lịch sử
+
+Bước 1. Bổ sung cấu hình InfluxDB vào file .env
+
+Mở file:
+
+```
+nano .env
+
+```
+Bổ sung thêm các dòng InfluxDB bên dưới:
+
+```
+INFLUXDB_USERNAME=admin
+INFLUXDB_PASSWORD=admin123456
+INFLUXDB_ORG=monitor-org
+INFLUXDB_BUCKET=weather-history
+INFLUXDB_TOKEN=monitor-secret-token-2026-tnut-realtime
+```
+
+<img width="1103" height="639" alt="image" src="https://github.com/user-attachments/assets/ab7b5cd5-2cfb-4724-b8b8-d19a21b98a04" />
+
+Lưu file:
+
+- Ctrl + O
+- Enter
+- Ctrl + X
+
+Bước 2. Sửa file docker-compose.yml
+
+Mở file:
+
+```
+nano docker-compose.yml
+```
+
+Xóa nội dung cũ và thay bằng toàn bộ nội dung sau:
+
+```
+services:
+  nodered:
+    image: nodered/node-red:latest
+    container_name: monitor_nodered
+    restart: unless-stopped
+    ports:
+      - "1881:1880"
+    volumes:
+      - nodered_data:/data
+    networks:
+      - monitor_network
+
+  mariadb:
+    image: mariadb:11.4
+    container_name: monitor_mariadb
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - monitor_network
+
+  influxdb:
+    image: influxdb:2.8.0
+    container_name: monitor_influxdb
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: ${INFLUXDB_USERNAME}
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_PASSWORD}
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUXDB_ORG}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUXDB_BUCKET}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_TOKEN}
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+      - influxdb_config:/etc/influxdb2
+    networks:
+      - monitor_network
+
+volumes:
+  nodered_data:
+  mariadb_data:
+  influxdb_data:
+  influxdb_config:
+
+networks:
+  monitor_network:
+    driver: bridge
+```
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c846c220-2d81-42c8-9f5f-a6357832b7dc" />
 
 
+Lưu file:
 
+- Ctrl + O
+- Enter
+- Ctrl + X
 
+Bước 3. Chạy InfluxDB
 
+Chạy:
 
+```
+docker compose up -d
+```
 
+Sau khi hoàn tất, chạy:
+
+```
+docker compose ps
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/6601c1e5-9968-484a-9171-8df5e74f45c7" />
+
+Kết quả cần có ba container:
+
+- monitor_nodered
+- monitor_mariadb
+- monitor_influxdb
+
+Bước 4. Kiểm tra InfluxDB bằng trình duyệt
+
+Trên Windows, mở:
+
+http://192.168.1.99:8086
+
+Đăng nhập:
+
+Username: admin
+Password: admin123456
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/9523c50f-0c94-42ee-9c0d-c0c3c64efe67" />
 
 
 
