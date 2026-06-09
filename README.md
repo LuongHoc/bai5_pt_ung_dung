@@ -1936,7 +1936,477 @@ http://192.168.1.99:5001/api/latest
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/26691730-60e4-491e-ab48-22076052f19c" />
 
 
+## PHẦN 12. Tạo giao diện web và chạy bằng Nginx
 
+1. Tạo thư mục front-end
+
+Tạo thư mục:
+
+```
+mkdir -p frontend
+```
+
+2. Tạo file HTML
+
+Chạy:
+
+```
+nano frontend/index.html
+```
+
+Dán toàn bộ nội dung sau:
+
+```
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Monitor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>APP MONITOR + ALERT DATA REALTIME</h1>
+        <p>Giám sát nhiệt độ thời tiết tại Thái Nguyên</p>
+    </header>
+
+    <main>
+        <section class="card">
+            <h2>Dữ liệu nhiệt độ tức thời</h2>
+
+            <div class="temperature-box">
+                <span id="temperature">--</span>
+                <span class="unit">°C</span>
+            </div>
+
+            <div class="information">
+                <p>
+                    <strong>Khu vực:</strong>
+                    <span id="city">Đang tải dữ liệu...</span>
+                </p>
+
+                <p>
+                    <strong>Trạng thái:</strong>
+                    <span id="status" class="status waiting">WAITING</span>
+                </p>
+
+                <p>
+                    <strong>Thời gian ghi nhận:</strong>
+                    <span id="observed-at">--</span>
+                </p>
+
+                <p>
+                    <strong>Lần làm mới giao diện:</strong>
+                    <span id="updated-at">--</span>
+                </p>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Ngưỡng cảnh báo</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Khoảng nhiệt độ</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>Nhỏ hơn 18°C</td>
+                        <td>ALERT LOW</td>
+                    </tr>
+
+                    <tr>
+                        <td>Từ 18°C đến 35°C</td>
+                        <td>OK</td>
+                    </tr>
+
+                    <tr>
+                        <td>Lớn hơn 35°C</td>
+                        <td>ALERT HIGH</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="card">
+            <h2>Biểu đồ dữ liệu lịch sử</h2>
+            <p>
+                Biểu đồ Grafana sẽ được nhúng vào khu vực này
+                sau khi trang web hoạt động ổn định.
+            </p>
+        </section>
+    </main>
+
+    <footer>
+        <p>APP MONITOR + ALERT DATA REALTIME</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
+```
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/5fed606b-5130-4ffd-a308-e481a64e11e1" />
+
+Lưu file:
+
+- Ctrl + O
+- Enter
+- Ctrl + X
+
+3. Tạo file CSS
+
+Chạy:
+
+```
+nano frontend/style.css
+```
+
+Dán nội dung:
+
+```
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    color: #1f2937;
+}
+
+header {
+    padding: 28px 16px;
+    text-align: center;
+    background: #1f2937;
+    color: white;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 26px;
+}
+
+header p {
+    margin: 10px 0 0;
+}
+
+main {
+    width: min(960px, 92%);
+    margin: 24px auto;
+}
+
+.card {
+    margin-bottom: 20px;
+    padding: 22px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+}
+
+.card h2 {
+    margin-top: 0;
+}
+
+.temperature-box {
+    margin: 18px 0;
+    text-align: center;
+}
+
+#temperature {
+    font-size: 72px;
+    font-weight: bold;
+}
+
+.unit {
+    font-size: 32px;
+}
+
+.information p {
+    line-height: 1.6;
+}
+
+.status {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+.status.waiting {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.status.ok {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status.alert-low {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.status.alert-high {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.status.error {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    text-align: left;
+}
+
+th {
+    background: #f3f4f6;
+}
+
+footer {
+    padding: 18px;
+    text-align: center;
+    background: #1f2937;
+    color: white;
+}
+```
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/dde89495-255f-458d-8277-26963be94c6f" />
+
+Lưu:
+
+- Ctrl + O
+- Enter
+- Ctrl + X
+
+4. Tạo file JavaScript
+
+Chạy:
+
+```
+nano frontend/app.js
+```
+
+Dán nội dung:
+
+```
+async function loadLatestWeather() {
+    const temperatureElement = document.getElementById("temperature");
+    const cityElement = document.getElementById("city");
+    const statusElement = document.getElementById("status");
+    const observedAtElement = document.getElementById("observed-at");
+    const updatedAtElement = document.getElementById("updated-at");
+
+    try {
+        const response = await fetch("/api/latest");
+
+        if (!response.ok) {
+            throw new Error(`API trả về mã lỗi ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        temperatureElement.textContent = Number(data.temperature).toFixed(1);
+        cityElement.textContent = data.city;
+        statusElement.textContent = data.status;
+        observedAtElement.textContent = data.observed_at;
+
+        const statusClass = data.status
+            .toLowerCase()
+            .replace(/\s+/g, "-");
+
+        statusElement.className = `status ${statusClass}`;
+
+        updatedAtElement.textContent =
+            new Date().toLocaleString("vi-VN");
+
+    } catch (error) {
+        console.error("Không thể tải dữ liệu:", error);
+
+        temperatureElement.textContent = "--";
+        cityElement.textContent = "Không thể kết nối API";
+        statusElement.textContent = "ERROR";
+        statusElement.className = "status error";
+        observedAtElement.textContent = "--";
+        updatedAtElement.textContent =
+            new Date().toLocaleString("vi-VN");
+    }
+}
+
+// Tải dữ liệu ngay khi mở trang
+loadLatestWeather();
+
+// Tự cập nhật lại dữ liệu sau mỗi 5 giây
+setInterval(loadLatestWeather, 5000);
+```
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/b6b3b756-2192-47c8-8789-f2aaf0279c55" />
+
+Lưu:
+
+- Ctrl + O
+- Enter
+- Ctrl + X
+
+5. Tạo file cấu hình Nginx
+
+Chạy:
+
+```
+nano frontend/nginx.conf
+```
+
+Dán nội dung:
+
+```
+server {
+    listen 80;
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api/ {
+        proxy_pass http://api:5000;
+        proxy_http_version 1.1;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/b672fb96-e6bc-4ba7-b29c-7e580d9d6752" />
+
+Lưu:
+
+- Ctrl + O
+- Enter
+- Ctrl + X
+
+6. Kiểm tra các file front-end
+
+Chạy:
+
+```
+find frontend -maxdepth 1 -type f -print
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/ca0fd15e-29a7-40b1-acc1-2ed94d6f52c6" />
+
+Kết quả:
+
+- frontend/index.html
+- frontend/style.css
+- frontend/app.js
+- frontend/nginx.conf
+
+7. Thêm service Nginx vào Docker Compose
+
+Mở file:
+
+```
+nano docker-compose.yml
+```
+
+Thêm service sau bên dưới service api nhưng phía trên phần volumes::
+
+```
+  nginx:
+    image: nginx:alpine
+    container_name: monitor_nginx
+    restart: unless-stopped
+    ports:
+      - "8082:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - api
+    networks:
+      - monitor_network
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/e6a0ba91-a3b8-41b1-aced-6462a35a180c" />
+
+
+Lưu:
+
+- Ctrl + O
+- Enter
+- Ctrl + X
+
+8. Chạy container Nginx
+
+Chạy:
+
+```
+docker compose up -d nginx
+```
+
+Kiểm tra:
+
+```
+docker compose ps
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/3ab86698-787c-4d75-a267-9417a1eae826" />
+
+Kết quả:
+
+Container mới cần có cổng: 0.0.0.0:8082->80/tcp
+
+9. Kiểm tra reverse proxy bằng Terminal
+
+Chạy:
+
+```
+curl http://localhost:8082/api/latest
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/0461fc29-9561-4791-9648-7be48c90ec19" />
+
+Kết quả:
+
+{
+  "city": "Thai Nguyen",
+  "id": 1,
+  "observed_at": "2026-06-09 15:30:00",
+  "status": "OK",
+  "temperature": 25.4
+}
+
+15. Mở giao diện web
+
+Trên trình duyệt Windows, mở:
+
+```
+http://192.168.1.99:8082
+```
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/5d14be2e-6a97-42a0-88ab-fe7699a332c6" />
 
 
 
