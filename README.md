@@ -819,6 +819,103 @@ Password: admin123456
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/9523c50f-0c94-42ee-9c0d-c0c3c64efe67" />
 
+## PHẦN 5. Tạo flow Node-RED lấy nhiệt độ thực tế
+
+1. Mở giao diện Node-RED
+
+Trên trình duyệt Windows, mở:
+
+```
+http://192.168.1.99:1881
+```
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/7ca026ab-aa71-4c62-8145-10f74835743e" />
+
+2. Thêm node inject
+
+Tại cột node bên trái, tìm node: ```inject```
+
+Kéo node vào vùng làm việc ở giữa.
+
+Nhấp đúp vào node inject để cấu hình.
+
+Điền như sau:
+
+- msg.payload = timestamp
+
+- Tích vào ô: Inject once after
+
+- Giữ thời gian: 1 seconds
+
+- Chọn: interval
+
+Sau đó giao diện sẽ xuất hiện ô thời gian.
+
+Điền: 60 và chọn đơn vị: seconds
+
+- Nhấn Done
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/22b2520f-a29e-4994-9596-995f854c4cc1" />
+
+3. Thêm node http request
+
+Tại ô tìm kiếm bên trái:
+
+Nhập: ```http request```
+
+Nhấp đúp vào node http request.
+
+Điền:
+
+
+- Name:	Gọi API Open-Meteo
+- Method:	GET
+- Return:	a UTF-8 string
+- Ô URL dán:
+
+```
+https://api.open-meteo.com/v1/forecast?latitude=21.5942&longitude=105.8482&current=temperature_2m&timezone=Asia%2FBangkok
+```
+
+- Nhấn: Done
+
+Sau đó nối dây:
+
+inject --> http request
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/531000a9-583d-4ac1-bcb8-2e72e912e29a" />
+
+4. Thêm node JSON
+
+Tại ô tìm kiếm bên trái:
+
+Gõ: ```json```
+
+Kéo node json vào bên phải node HTTP request.
+
+Nhấp đúp node json.
+
+Điền:
+
+- Name:	Chuyển JSON thành Object
+- Action:	Always convert to JavaScript Object
+- Property:	msg.payload
+
+Nhấn: Done
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/41fccf7a-8f89-4a39-a291-f56e020ae57a" />
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
