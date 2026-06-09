@@ -1154,6 +1154,187 @@ docker exec -it monitor_mariadb mariadb \
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/7d02009c-6ca1-4185-a156-0b53f7a1650a" />
 
+## PHẦN 7. Ghi dữ liệu lịch sử vào InfluxDB
+
+1. Phân biệt MariaDB và InfluxDB
+
+MariaDB chỉ giữ một dòng mới nhất:
+
+09:15 → 23.0°C
+
+09:30 → ghi đè thành 24.0°C
+
+09:45 → ghi đè thành 24.5°C
+
+InfluxDB sẽ giữ toàn bộ lịch sử:
+
+09:15 → 23.0°C
+
+09:30 → 24.0°C
+
+09:45 → 24.5°C
+
+Sau này Grafana đọc dữ liệu trong InfluxDB để tạo biểu đồ thay đổi nhiệt độ theo thời gian.
+
+Node node-red-contrib-influxdb hỗ trợ ghi và truy vấn dữ liệu trên InfluxDB 1.x và 2.0. Với node output, dữ liệu gửi qua msg.payload; nếu msg.payload là một mảng gồm hai object thì object đầu tiên là các field, object thứ hai là các tag.
+
+2. Cài node kết nối InfluxDB trong Node-RED
+Bước 1. Mở Manage palette
+
+- Trong giao diện Node-RED tại: ```http://192.168.1.99:1881```
+
+- nhấn biểu tượng ba gạch ngang ở góc trên bên phải: ☰
+
+- Chọn: Manage palette
+
+Bước 2. Cài module InfluxDB
+
+- Chọn tab: Install
+
+- Tại ô tìm kiếm, nhập chính xác: ```node-red-contrib-influxdb```
+
+- Nhấn: Install
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/23382503-9cb7-4ec6-8bc7-1ba8416fd8a4" />
+
+3. Thêm node Function chuẩn bị dữ liệu InfluxDB
+
+Bước 1. Kéo node Function
+
+- Tại ô tìm kiếm bên trái, nhập: ```function```
+
+- Kéo thêm một node: ```function``` đặt phía dưới nhánh MariaDB.
+
+Bước 2. Nối dây
+
+Nối từ node:
+
+- Chuyển JSON thành Object sang node Function mới.
+
+Bước 3. Cấu hình Function
+
+- Nhấp đúp node Function mới.
+
+- Tại ô Name, nhập: Chuẩn bị dữ liệu InfluxDB
+
+Xóa code mặc định và dán đoạn sau:
+
+```
+// Lấy object current từ dữ liệu Open-Meteo
+const current = msg.payload.current;
+
+// Kiểm tra dữ liệu đầu vào
+if (!current || current.temperature_2m === undefined) {
+    node.error("Không đọc được nhiệt độ để lưu vào InfluxDB", msg);
+    return null;
+}
+
+// Chuyển nhiệt độ về kiểu số
+const temperature = Number(current.temperature_2m);
+
+// Phân loại trạng thái
+let status = "OK";
+
+if (temperature < 18) {
+    status = "ALERT LOW";
+} else if (temperature > 35) {
+    status = "ALERT HIGH";
+}
+
+// Object thứ nhất: fields - dữ liệu cần lưu và vẽ biểu đồ
+// Object thứ hai: tags - nhãn giúp lọc dữ liệu
+msg.payload = [
+    {
+        temperature: temperature
+    },
+    {
+        city: "Thai Nguyen",
+        status: status
+    }
+];
+
+return msg;
+```
+
+Nhấn: Done
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c61a4069-0fa2-42f8-a127-1746ab5530c9" />
+
+
+4. Thêm node influxdb out
+
+Bước 1. Kéo node vào flow
+
+- Tại ô tìm kiếm bên trái, nhập: ```influx```
+
+- Kéo node: ```influxdb out``` vào bên phải node: Chuẩn bị dữ liệu InfluxDB
+
+Bước 2. Mở cấu hình
+
+- Nhấp đúp vào node: influxdb out
+
+- Tại phần cấu hình server, nhấn biểu tượng bút chì để thêm kết nối mới.
+
+7. Cấu hình kết nối InfluxDB 2.0
+
+Điền như sau:
+
+- Name:	InfluxDB Monitor
+- Version:	2.0
+- URL:	http://influxdb:8086
+- Token:	monitor-secret-token-2026-tnut-realtime
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/e0daa0c7-4dac-4e9f-86a3-f311e7f94d9f" />
+
+5. Điền thông tin cho node influxdb out
+
+Sau khi thêm server, quay lại cửa sổ cấu hình node output.
+
+Điền:
+
+- Name:	Lưu lịch sử vào InfluxDB
+- Measurement:	weather
+- Organization:	monitor-org
+- Bucket:	weather-history
+- Time Precision:	Chọn ms
+
+Nhấn: Done
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/57f96494-b43d-4475-bd25-c4750a96b3f6" />
+
+6. Deploy và chạy thử
+
+- Nhấn: Deploy
+
+- Bấm nút nhỏ bên trái node: Lấy nhiệt độ mỗi 60 giây
+
+Trong tab Debug, thấy dữ liệu:
+
+```
+array[2]
+  0: object
+      temperature: 23
+  1: object
+      city: "Thai Nguyen"
+      status: "OK"
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/89c39c00-8f50-4562-9d34-dd12d4142b9f" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
