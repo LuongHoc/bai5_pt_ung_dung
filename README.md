@@ -1308,6 +1308,8 @@ Nhấn: Done
 
 - Bấm nút nhỏ bên trái node: Lấy nhiệt độ mỗi 60 giây
 
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/89c39c00-8f50-4562-9d34-dd12d4142b9f" />
+
 Trong tab Debug, thấy dữ liệu:
 
 ```
@@ -1319,7 +1321,7 @@ array[2]
       status: "OK"
 ```
 
-<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/89c39c00-8f50-4562-9d34-dd12d4142b9f" />
+
 
 
 
