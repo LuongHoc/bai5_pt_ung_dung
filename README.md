@@ -2687,7 +2687,165 @@ Lưu file:
 - Enter
 - Ctrl + X
 
-File .env đã nằm trong .gitignore, vì vậy không đẩy file này lên GitHub.
+## PHẦN 15. Tích hợp Telegram Bot vào Node-RED
+
+Bước 1. Cho container Node-RED đọc file .env
+
+Mở Docker Compose:
+
+```
+nano docker-compose.yml
+```
+
+Tìm service: nodered:
+
+Thêm phần:
+
+```
+    env_file:
+      - .env
+```
+   
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/a7bd4467-2f31-44b6-94da-29f79e6c1dcf" />
+
+Lưu file:
+
+- Ctrl + O
+- Enter
+- Ctrl + X
+
+Bước 2. Tạo lại riêng container Node-RED
+
+Chạy:
+
+```
+docker compose up -d --force-recreate nodered
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/020a307e-d40c-45e6-b134-ac016443e619" />
+
+Bước 3. Thêm node Function kiểm tra cảnh báo
+
+- Tìm node: function
+
+- Kéo một node Function mới vào dưới các nhánh hiện có.
+
+- Nối: Chuyển JSON thành Object -> Function mới
+
+- Nhấp đúp node Function.
+
+- Đặt tên: Kiểm tra cảnh báo Telegram
+
+- Xóa code mặc định và dán:
+
+```
+// Đọc dữ liệu nhiệt độ từ Open-Meteo
+const current = msg.payload.current;
+
+if (!current || current.temperature_2m === undefined) {
+    node.error("Không đọc được nhiệt độ để kiểm tra cảnh báo", msg);
+    return null;
+}
+
+const temperature = Number(current.temperature_2m);
+const observedAt = String(current.time).replace("T", " ");
+
+let status = "OK";
+
+if (temperature < 18) {
+    status = "ALERT LOW";
+} else if (temperature > 35) {
+    status = "ALERT HIGH";
+}
+
+// Chỉ gửi cảnh báo khi trạng thái thay đổi.
+// Ví dụ: từ OK chuyển sang ALERT HIGH.
+// Điều này tránh gửi lặp lại tin nhắn mỗi 60 giây.
+const previousStatus = context.get("previousStatus") || "UNKNOWN";
+context.set("previousStatus", status);
+
+if (status === "OK" || status === previousStatus) {
+    return null;
+}
+
+// Đọc token và chat ID từ file .env của container Node-RED
+const token = env.get("TELEGRAM_BOT_TOKEN");
+const chatId = env.get("TELEGRAM_CHAT_ID");
+
+if (!token || !chatId) {
+    node.error("Thiếu TELEGRAM_BOT_TOKEN hoặc TELEGRAM_CHAT_ID", msg);
+    return null;
+}
+
+// Chuẩn bị request gọi Telegram Bot API
+msg.method = "POST";
+msg.url = `https://api.telegram.org/bot${token}/sendMessage`;
+
+msg.headers = {
+    "Content-Type": "application/json"
+};
+
+msg.payload = {
+    chat_id: chatId,
+    text:
+        "⚠️ CẢNH BÁO NHIỆT ĐỘ\n" +
+        "Khu vực: Thái Nguyên\n" +
+        "Giá trị bất thường: " + temperature + " °C\n" +
+        "Trạng thái: " + status + "\n" +
+        "Thời gian ghi nhận: " + observedAt
+};
+
+return msg;
+```
+
+- Nhấn: Done
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/fb3737e7-cd08-40fb-b710-99c4b4135947" />
+
+
+Bước 6. Thêm node HTTP Request gửi Telegram
+
+- Tìm node: http request
+
+- Kéo vào bên phải node:
+
+- Kiểm tra cảnh báo Telegram
+
+- Nối dây: Kiểm tra cảnh báo Telegram -> http request
+
+- Nhấp đúp node HTTP Request và cấu hình:
+
+Name:	Gửi cảnh báo Telegram
+
+Method:	- set by msg.method -
+
+URL:	Để trống 
+
+Return:	a parsed JSON object
+
+- Nhấn: Done
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/b7c2e4d5-436f-4b8d-8651-7365f15462e5" />
+
+Bước 7. Thêm node Debug kiểm tra kết quả
+
+Tìm node: debug
+
+- Kéo vào bên phải node: Gửi cảnh báo Telegram
+
+- Nối dây: Gửi cảnh báo Telegram -> Xem kết quả Telegram
+
+- Cấu hình Debug:
+
+Name:	Xem kết quả Telegram
+
+Output:	msg.payload
+
+- Nhấn: Done
+
+- Nhấn: Deploy
+
+
 
 
 
