@@ -1555,13 +1555,84 @@ Cuộn xuống phần: ```InfluxDB Details```
 Cuộn xuống cuối trang, nhấn: ```Save & test```
 
 
+## PHẦN 10. Tạo Dashboard và biểu đồ nhiệt độ trong Grafana
+
+1. Mở trang tạo Dashboard
+
+ Trong menu: Dashboard → New → New dashboard → Add visualization
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/5b467f92-4bad-4199-8c1c-657ba6747960" />
+
+2. Chọn nguồn dữ liệu
+
+Khi cửa sổ chọn data source xuất hiện, nhấn:
+
+InfluxDB Weather
+
+Đây là data source bạn vừa cấu hình.
+
+Sau khi chọn, Grafana mở trang chỉnh sửa panel.
+
+3. Nhập truy vấn Flux
+
+Vì data source được cấu hình với ngôn ngữ:
+
+Flux
+
+Grafana sẽ hiển thị vùng nhập code truy vấn. Với Flux, Grafana sử dụng code editor thay vì trình kéo thả trực quan.
+
+Xóa đoạn code mặc định nếu có và dán:
+
+```
+from(bucket: "weather-history")
+  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+  |> filter(fn: (r) => r._measurement == "weather")
+  |> filter(fn: (r) => r._field == "temperature")
+  |> filter(fn: (r) => r.city == "Thai Nguyen")
+  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)
+  |> yield(name: "mean")
+```
+
+4. Kiểm tra biểu đồ
+
+- Sau khi dán truy vấn, Grafana thường tự chạy truy vấn. Nếu chưa thấy biểu đồ, nhấn: ```Refresh```
+
+- Thấy đường biểu diễn nhiệt độ tương tự biểu đồ đã xuất hiện trong InfluxDB Data Explorer.
+
+5. Chọn kiểu biểu đồ
+
+- Ở phần bên phải
+
+- Chọn: ```Time series```
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/002ba798-4ad2-4c0f-a5d1-4f0b5444268b" />
+
+Kiểu Time series phù hợp để biểu diễn nhiệt độ thay đổi theo thời gian.
+
+6. Đặt tên biểu đồ
+
+- Ở bảng cấu hình bên phải, tìm: ```Panel options```
+
+- Tại ô: ```Title```
+
+- Nhập: Lịch sử nhiệt độ Thái Nguyên
+
+7. Chọn đơn vị nhiệt độ
+
+- Tìm mục: Standard options
+- Tại ô: Unit
+- Tìm: Celsius
+- Chọn: Temperature → Celsius (°C)
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/58134bb1-1dfd-4bbf-90d6-33e74f31ed40" />
 
 
+8. Lưu Dashboard
 
-
-
-
-
+- Nhấn biểu tượng lưu:
+- Save dashboard
+- Nhập tên Dashboard: Weather Monitor
+- Nhấn: Save
 
 
 
