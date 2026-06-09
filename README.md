@@ -1073,11 +1073,86 @@ return msg;
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/06917934-4165-4944-a32f-40e6625e912b" />
 
+Bước 3. Thêm node MySQL
+
+Tại ô tìm kiếm bên trái, nhập: mysql
+
+Kéo node mysql vào bên phải node: Phân loại và tạo câu SQL
+
+Cấu hình kết nối MariaDB: Bên cạnh ô cấu hình database, nhấn biểu tượng bút chì để thêm kết nối mới.
+
+Điền:
+
+- Name:	MariaDB Monitor
+- Host:	mariadb
+- Port:	3306
+- User:	monitor_user
+- Password:	monitor123
+- Database:	monitor_db
+- Timezone:	Để mặc định 
+
+Nhấn: Add
+
+Sau đó tại ô Name của node MySQL, nhập: Ghi giá trị mới nhất vào MariaDB
+
+Nhấn: Done
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c4db713e-d695-437f-9bb1-2472169e94f9" />
+
+Bước 4. Thêm node Debug kiểm tra kết quả ghi database
+
+4.1. Thêm Debug mới
+
+Tìm: debug
+
+Kéo một node Debug mới vào bên phải node MySQL.
+
+4.2. Cấu hình Debug
+
+Nhấp đúp node Debug mới.
+
+Điền:
+
+- Name:	Kết quả ghi MariaDB
+- Output:	complete msg object
+
+Nhấn: Done
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/ba5c3ba7-178d-4601-8547-694e8d698f31" />
 
 
+Node này giúp quan sát kết quả sau khi chạy câu lệnh SQL.
+
+Bước 5. Deploy và kiểm tra flow
+
+Nhấn: Deploy
+
+Bấm thủ công nút nhỏ bên trái node:
+
+Lấy nhiệt độ mỗi 60 giây
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/142a755d-ee60-4474-8aec-985c1dcf0f10" />
 
 
+Bước 5. Kiểm tra dữ liệu trong MariaDB
 
+Quay lại Terminal Ubuntu và chạy:
+
+```
+cd ~/app-monitor-realtime
+```
+
+Sau đó chạy:
+
+```
+docker exec -it monitor_mariadb mariadb \
+  -u monitor_user \
+  -pmonitor123 \
+  monitor_db \
+  -e "SELECT * FROM weather_latest;"
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/7d02009c-6ca1-4185-a156-0b53f7a1650a" />
 
 
 
