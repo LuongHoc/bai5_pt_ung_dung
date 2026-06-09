@@ -2739,7 +2739,7 @@ Bước 3. Thêm node Function kiểm tra cảnh báo
 - Xóa code mặc định và dán:
 
 ```
-// Đọc dữ liệu nhiệt độ từ Open-Meteo
+// Đọc nhiệt độ từ payload
 const current = msg.payload.current;
 
 if (!current || current.temperature_2m === undefined) {
@@ -2758,17 +2758,35 @@ if (temperature < 18) {
     status = "ALERT HIGH";
 }
 
-// Chỉ gửi cảnh báo khi trạng thái thay đổi.
-// Ví dụ: từ OK chuyển sang ALERT HIGH.
-// Điều này tránh gửi lặp lại tin nhắn mỗi 60 giây.
-const previousStatus = context.get("previousStatus") || "UNKNOWN";
-context.set("previousStatus", status);
+// Dùng flow context để các node khác cùng đọc được trạng thái
+const previousStatus =
+    flow.get("telegramPreviousStatus") || "UNKNOWN";
 
-if (status === "OK" || status === previousStatus) {
+// Trạng thái OK không cần gửi Telegram.
+// Tuy nhiên vẫn phải lưu lại để reset hệ thống.
+if (status === "OK") {
+    flow.set("telegramPreviousStatus", "OK");
+
+    node.status({
+        fill: "green",
+        shape: "dot",
+        text: "OK - không gửi cảnh báo"
+    });
+
     return null;
 }
 
-// Đọc token và chat ID từ file .env của container Node-RED
+// Không gửi lặp lại cùng một cảnh báo
+if (status === previousStatus) {
+    node.status({
+        fill: "grey",
+        shape: "ring",
+        text: "Bỏ qua cảnh báo trùng: " + status
+    });
+
+    return null;
+}
+
 const token = env.get("TELEGRAM_BOT_TOKEN");
 const chatId = env.get("TELEGRAM_CHAT_ID");
 
@@ -2777,7 +2795,7 @@ if (!token || !chatId) {
     return null;
 }
 
-// Chuẩn bị request gọi Telegram Bot API
+// Chuẩn bị request Telegram
 msg.method = "POST";
 msg.url = `https://api.telegram.org/bot${token}/sendMessage`;
 
@@ -2794,6 +2812,16 @@ msg.payload = {
         "Trạng thái: " + status + "\n" +
         "Thời gian ghi nhận: " + observedAt
 };
+
+// Chưa lưu previousStatus tại đây.
+// Chỉ lưu sau khi Telegram xác nhận gửi thành công.
+msg.alertStatus = status;
+
+node.status({
+    fill: "yellow",
+    shape: "dot",
+    text: "Đang gửi: " + status
+});
 
 return msg;
 ```
@@ -2827,7 +2855,44 @@ Return:	a parsed JSON object
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/b7c2e4d5-436f-4b8d-8651-7365f15462e5" />
 
-Bước 7. Thêm node Debug kiểm tra kết quả
+Bước 7. Thêm node Function xác nhận gửi thành công
+
+- Kéo thêm một node: function
+
+- Nối: Gửi cảnh báo Telegram -> function
+
+- Đặt tên: Xác nhận đã gửi Telegram
+
+Dán code:
+
+```
+// Telegram trả về { ok: true, ... } nếu gửi thành công
+if (msg.payload && msg.payload.ok === true) {
+    flow.set("telegramPreviousStatus", msg.alertStatus);
+
+    node.status({
+        fill: "green",
+        shape: "dot",
+        text: "Đã gửi: " + msg.alertStatus
+    });
+
+    return msg;
+}
+
+node.warn("Telegram chưa xác nhận gửi thành công");
+
+node.status({
+    fill: "red",
+    shape: "ring",
+    text: "Gửi thất bại - có thể thử lại"
+});
+
+return msg;
+```
+
+Nhấn: Done
+
+Bước 8. Thêm node Debug kiểm tra kết quả
 
 Tìm node: debug
 
@@ -2845,10 +2910,95 @@ Output:	msg.payload
 
 - Nhấn: Deploy
 
+## PHẦN 16. Tạo node kiểm thử cảnh báo
 
 
+Bước 1. Tạo node test ALERT HIGH
+
+Kéo một node: inject vào flow.
+
+Nhấp đúp và cấu hình:
+
+- Name:	TEST ALERT HIGH 40°C
+msg.payload:	Chọn kiểu JSON
+
+Dán JSON:
+
+```
+{
+  "current": {
+    "temperature_2m": 40,
+    "time": "2026-06-09T22:00"
+  }
+}
+```
+
+Nhấn: Done
+
+Nối: TEST ALERT HIGH 40°C -> Kiểm tra cảnh báo Telegram
+
+Bước 2. Tạo node reset về OK
+
+Kéo thêm một node Inject.
+
+Cấu hình:
+
+- Name:	TEST RESET OK 25°C
+- msg.payload:	Kiểu JSON
+
+Dán:
+
+```
+{
+  "current": {
+    "temperature_2m": 25,
+    "time": "2026-06-09T22:01"
+  }
+}
+```
+Nối trực tiếp vào: Kiểm tra cảnh báo Telegram
 
 
+Bước 3. Tạo node test ALERT LOW
+
+Kéo thêm một node Inject.
+
+Cấu hình:
+
+- Name:	TEST ALERT LOW 10°C
+- msg.payload:	Kiểu JSON
+
+Dán:
+
+```
+{
+  "current": {
+    "temperature_2m": 10,
+    "time": "2026-06-09T22:02"
+  }
+}
+```
+
+Nối vào: Kiểm tra cảnh báo Telegram
+
+Nhấn: Deploy
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/4a49dd3f-3f24-422b-8ac4-dc71a849e90e" />
+
+## PHẦN 17. Kiểm thử Telegram Alert
+
+Thực hiện theo thứ tự:
+
+1. Bấm TEST ALERT HIGH 40°C
+2. Kiểm tra nhóm Telegram
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/43715d3a-f67b-4cd7-aa5c-88c5cbb5bb5d" />
+
+3. Bấm TEST RESET OK 25°C
+4. Bấm TEST ALERT LOW 10°C
+5. Kiểm tra nhóm Telegram lần nữa
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/8805e45a-c202-4fd6-8795-f89a297acaac" />
 
 
 
