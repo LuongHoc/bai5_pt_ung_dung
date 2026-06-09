@@ -1635,7 +1635,305 @@ Kiểu Time series phù hợp để biểu diễn nhiệt độ thay đổi theo
 - Nhấn: Save
 
 
+## PHẦN 11. Tạo Flask API đọc dữ liệu từ MariaDB
 
+1. Tạo thư mục Flask API
+
+Tạo thư mục:
+
+```
+mkdir -p api
+```
+
+Kiểm tra:
+
+```
+ls
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/a369608e-9665-48cb-9aa5-0259978992e5" />
+
+2. Tạo file thư viện Python
+
+Chạy:
+
+```
+nano api/requirements.txt
+```
+
+Dán nội dung:
+
+```
+Flask==3.1.2
+PyMySQL==1.1.2
+```
+
+<img width="1103" height="639" alt="image" src="https://github.com/user-attachments/assets/f1305f5f-b93f-4051-a02f-045fd3e6c234" />
+
+Lưu file:
+
+- Ctrl + O
+- Enter
+- Ctrl + X
+
+3. Tạo chương trình Flask API
+
+Chạy:
+
+```
+nano api/app.py
+```
+
+Dán toàn bộ code sau:
+
+```
+import os
+
+import pymysql
+from flask import Flask, jsonify
+
+app = Flask(__name__)
+
+
+def get_db_connection():
+    """
+    Tạo kết nối đến MariaDB.
+    Các thông tin được đọc từ biến môi trường của container.
+    """
+    return pymysql.connect(
+        host=os.getenv("DB_HOST", "mariadb"),
+        port=int(os.getenv("DB_PORT", "3306")),
+        user=os.getenv("DB_USER", "monitor_user"),
+        password=os.getenv("DB_PASSWORD", "monitor123"),
+        database=os.getenv("DB_NAME", "monitor_db"),
+        cursorclass=pymysql.cursors.DictCursor,
+    )
+
+
+@app.get("/health")
+def health():
+    """
+    API đơn giản để kiểm tra Flask đang hoạt động.
+    """
+    return jsonify({
+        "status": "ok",
+        "service": "monitor_api"
+    })
+
+
+@app.get("/api/latest")
+def get_latest_weather():
+    """
+    Đọc nhiệt độ mới nhất từ bảng weather_latest trong MariaDB.
+    """
+    try:
+        connection = get_db_connection()
+
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    id,
+                    city,
+                    CAST(temperature AS DOUBLE) AS temperature,
+                    status,
+                    DATE_FORMAT(observed_at, '%%Y-%%m-%%d %%H:%%i:%%s') AS observed_at
+                FROM weather_latest
+                WHERE id = 1;
+                """
+            )
+
+            result = cursor.fetchone()
+
+        connection.close()
+
+        if result is None:
+            return jsonify({
+                "error": "Không tìm thấy dữ liệu nhiệt độ"
+            }), 404
+
+        return jsonify(result)
+
+    except Exception as error:
+        return jsonify({
+            "error": "Không thể đọc dữ liệu từ MariaDB",
+            "detail": str(error)
+        }), 500
+
+
+if __name__ == "__main__":
+    app.run(
+        host="0.0.0.0",
+        port=5000,
+        debug=False
+    )
+```
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/7138d493-c1b2-4061-9fec-002a6896444b" />
+
+Lưu file:
+
+- Ctrl + O
+- Enter
+- Ctrl + X
+
+4. Tạo Dockerfile cho Flask API
+
+Dockerfile mô tả các bước tạo image từ source code.
+
+Chạy:
+
+```
+nano api/Dockerfile
+```
+
+Dán nội dung:
+
+```
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY app.py .
+
+EXPOSE 5000
+
+CMD ["python", "app.py"]
+```
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/16f8aa38-27d0-4382-9578-5b855cb0d5f6" />
+
+Lưu file:
+
+- Ctrl + O
+- Enter
+- Ctrl + X
+
+5. Bổ sung service API vào Docker Compose
+
+Mở file:
+
+```
+nano docker-compose.yml
+```
+
+Thêm service sau phía dưới service grafana nhưng phía trên phần volumes::
+
+```
+  api:
+    build:
+      context: ./api
+    container_name: monitor_api
+    restart: unless-stopped
+    ports:
+      - "5001:5000"
+    environment:
+      DB_HOST: mariadb
+      DB_PORT: 3306
+      DB_USER: ${MARIADB_USER}
+      DB_PASSWORD: ${MARIADB_PASSWORD}
+      DB_NAME: ${MARIADB_DATABASE}
+    depends_on:
+      - mariadb
+    networks:
+      - monitor_network
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/b419053e-f515-4be0-959c-7f6de3df909d" />
+
+Lưu file:
+
+- Ctrl + O
+- Enter
+- Ctrl + X
+
+6. Build và chạy Flask API
+
+Chạy:
+
+```
+docker compose up -d --build api
+```
+
+7. Kiểm tra trạng thái container
+
+Chạy:
+
+```
+docker compose ps
+```
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/5e7015c1-d6e9-460d-bd32-aa5bbf181dfd" />
+
+Kết quả cần có năm container:
+
+- monitor_nodered
+- monitor_mariadb
+- monitor_influxdb
+- monitor_grafana
+- monitor_api
+
+Container API phải có trạng thái: Up và cổng: 0.0.0.0:5001->5000/tcp
+
+8. Xem log Flask API
+
+Chạy:
+
+```
+docker logs monitor_api --tail 30
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/0bdf8c89-227a-41e8-a6bb-087a20a45dc4" />
+
+Kết quả:
+
+- Running on all addresses (0.0.0.0)
+- Running on http://127.0.0.1:5000
+
+9. Kiểm tra route /health
+
+Chạy trên Terminal Ubuntu:
+
+```
+curl http://localhost:5001/health
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/9d1167eb-67af-4621-8764-30574118a684" />
+
+Kết quả:
+
+{"service":"monitor_api","status":"ok"}
+
+10. Kiểm tra route /api/latest
+
+Chạy:
+
+```
+curl http://localhost:5001/api/latest
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/e1676726-b43b-4afe-ac72-75afb7e1f79c" />
+
+Kết quả:
+
+{
+  "city": "Thai Nguyen",
+  "id": 1,
+  "observed_at": "2026-06-09 13:15:00",
+  "status": "OK",
+  "temperature": 26.7
+}
+
+Có thể mở trực tiếp từ trình duyệt Windows:
+
+```
+http://192.168.1.99:5001/api/latest
+```
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/26691730-60e4-491e-ab48-22076052f19c" />
 
 
 
