@@ -1499,6 +1499,62 @@ http://192.168.1.99:3000
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c6e8233b-358a-4d52-a32c-686fa7c8a6ec" />
 
 
+## PHẦN 9. Kết nối Grafana với InfluxDB
+1. Mở phần Data Sources
+
+- Trong giao diện Grafana, nhìn menu bên trái và chọn: ```Connections```
+
+- Sau đó chọn: ```Data sources```
+
+2. Thêm data source mới
+
+- Nhấn: ```Add new data source```
+
+- Tại ô tìm kiếm, nhập: ```InfluxDB```
+
+- Chọn data source: ```InfluxDB```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/35a78801-3660-4b73-be0b-a78dbaa432e6" />
+
+3. Điền tên data source
+
+Tại ô ```Name```
+
+nhập: ```InfluxDB Weather```
+
+4. Chọn ngôn ngữ truy vấn Flux
+
+Tìm mục: ```Query language```
+
+Chọn: ```Flux```
+
+5. Điền địa chỉ kết nối
+
+Tại phần: HTTP
+
+Tìm ô: URL
+
+Nhập: ```http://influxdb:8086```
+
+6. Điền thông tin xác thực InfluxDB
+
+Cuộn xuống phần: ```InfluxDB Details```
+
+Điền chính xác:
+
+- Organization:	monitor-org
+- Token:	monitor-secret-token-2026-tnut-realtime
+- Default Bucket:	weather-history
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/9d4393dd-fcec-4b99-ad43-876bf18722a5" />
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/2e625ff1-e767-4b7c-a53c-cc31a61059b7" />
+
+7. Lưu và kiểm tra kết nối
+
+Cuộn xuống cuối trang, nhấn: ```Save & test```
+
+
 
 
 
