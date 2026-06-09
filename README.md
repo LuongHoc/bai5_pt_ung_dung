@@ -2616,137 +2616,76 @@ tnut_weather_monitor_2026_bot
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c1f9f0d9-bcf3-4a87-9110-bc4ffac1ccd3" />
 
-4. Gửi một lệnh thử nghiệm trong nhóm
+3. Gửi một lệnh thử nghiệm trong nhóm
 
 Trong nhóm Telegram, gửi:
 
 /test
 
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/cf1fbef1-7209-4c14-9f35-f079510378c1" />
 
+4. Lấy Chat ID bằng Terminal Ubuntu
 
-5. Lấy Chat ID bằng Terminal Ubuntu
+- Quay lại Terminal Ubuntu.
 
-Quay lại Terminal Ubuntu.
+- Chạy lệnh:
 
-Chạy lệnh sau và thay TOKEN_CUA_BAN bằng token BotFather vừa cấp:
-
+```
 curl "https://api.telegram.org/botTOKEN_CUA_BAN/getUpdates"
+```
+- Tìm Chat ID trong kết quả
 
-Ví dụ minh họa:
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/218dcde5-49db-48c9-b257-148204c475f8" />
 
-curl "https://api.telegram.org/bot1234567890:AAExampleToken/getUpdates"
+ID là:
+```
+-5269158210
+```
 
-Không sử dụng token ví dụ ở trên.
-
-Phương thức getUpdates được Telegram Bot API cung cấp để nhận các cập nhật mới gửi đến bot.
-
-6. Tìm Chat ID trong kết quả
-
-Kết quả sẽ có dạng JSON gần giống:
-
-{
-  "ok": true,
-  "result": [
-    {
-      "update_id": 123456789,
-      "message": {
-        "chat": {
-          "id": -1009876543210,
-          "title": "TNUT Weather Monitor Alert",
-          "type": "supergroup"
-        },
-        "text": "/test"
-      }
-    }
-  ]
-}
-
-Tìm phần:
-
-"chat": {
-  "id": -1009876543210
-}
-
-Giá trị cần sao chép là:
-
--1009876543210
-
-Chat ID của nhóm thường là số âm. Hãy sao chép đầy đủ cả dấu trừ ở đầu.
-
-7. Nếu kết quả chưa xuất hiện Chat ID
-Trường hợp kết quả rỗng
-
-Nếu nhận được:
-
-{
-  "ok": true,
-  "result": []
-}
-
-thực hiện lại:
-
-Kiểm tra bot đã được thêm vào nhóm.
-Gửi lại trong nhóm:
-/test
-Chạy lại:
-curl "https://api.telegram.org/botTOKEN_CUA_BAN/getUpdates"
-Trường hợp Telegram báo lỗi token
-
-Nếu nhận được lỗi:
-
-Unauthorized
-
-token đã nhập sai. Sao chép lại token từ BotFather.
-
-8. Kiểm tra bot bằng lệnh gửi tin nhắn trực tiếp
+5. Kiểm tra bot bằng lệnh gửi tin nhắn trực tiếp
 
 Sau khi có Chat ID, chạy thử lệnh sau. Thay token và Chat ID bằng giá trị thật:
 
-curl -X POST "https://api.telegram.org/botTOKEN_CUA_BAN/sendMessage" \
-  -d "chat_id=CHAT_ID_CUA_NHOM" \
+```
+curl -X POST "https://api.telegram.org/bot8514316926:AAFXqgzgOC-yMNR08k-kOq8EKQof5Etf0QI/sendMessage" \
+  -d "chat_id=-5269158210" \
   --data-urlencode "text=TEST: Bot cảnh báo thời tiết đã kết nối thành công."
+```
 
-Ví dụ cấu trúc:
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/700aebcd-023c-4b85-985b-6e84a95b0626" />
 
-curl -X POST "https://api.telegram.org/bot1234567890:AAExampleToken/sendMessage" \
-  -d "chat_id=-1009876543210" \
-  --data-urlencode "text=TEST: Bot cảnh báo thời tiết đã kết nối thành công."
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c7bf9d47-030c-4f1f-a08f-9c08120ef405" />
 
-Phương thức sendMessage của Telegram Bot API dùng để gửi tin nhắn văn bản đến một chat_id.
+Nhóm Telegram nhận được tin nhắn: TEST: Bot cảnh báo thời tiết đã kết nối thành công. thì bot đã hoạt động đúng.
 
-Nếu nhóm Telegram nhận được tin nhắn:
-
-TEST: Bot cảnh báo thời tiết đã kết nối thành công.
-
-thì bot đã hoạt động đúng.
-
-9. Bổ sung cấu hình vào file .env
+6. Bổ sung cấu hình vào file .env
 
 Sau khi kiểm tra bot thành công, quay lại thư mục dự án:
 
+```
 cd ~/app-monitor-realtime
+```
 
 Mở file:
 
+```
 nano .env
+```
 
 Thêm hai dòng cuối:
 
+```
 TELEGRAM_BOT_TOKEN=TOKEN_THAT_CUA_BAN
 TELEGRAM_CHAT_ID=CHAT_ID_THAT_CUA_NHOM
+```
 
-Ví dụ cấu trúc:
-
-TELEGRAM_BOT_TOKEN=1234567890:AAExampleToken
-TELEGRAM_CHAT_ID=-1009876543210
-
-Dùng token và Chat ID thật của bạn, không dùng giá trị ví dụ.
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/b5ecaa0a-4d6d-4c4b-8598-3ab13300b539" />
 
 Lưu file:
 
-Ctrl + O
-Enter
-Ctrl + X
+- Ctrl + O
+- Enter
+- Ctrl + X
 
 File .env đã nằm trong .gitignore, vì vậy không đẩy file này lên GitHub.
 
