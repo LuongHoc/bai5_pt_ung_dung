@@ -1321,13 +1321,182 @@ array[2]
       status: "OK"
 ```
 
+PHẦN 8. Kiểm tra dữ liệu InfluxDB và thêm Grafana
 
 
+### A. Kiểm tra dữ liệu lịch sử trong InfluxDB
+
+Bước 1. Truy cập giao diện InfluxDB
+
+- Mở trình duyệt và truy cập: ```http://192.168.1.99:8086```
+
+- Đăng nhập bằng tài khoản đã khai báo trong file .env:
+
+Username: admin
+
+Password: admin123456
+
+Bước 2. Mở Data Explorer
+
+- Tại menu bên trái, chọn: Data Explorer
+
+- Data Explorer cho phép truy vấn và trực quan hóa dữ liệu lịch sử đã lưu trong InfluxDB.
+
+Bước 3. Chọn bucket
+
+- Trong cột: FROM
+
+- chọn bucket: weather-history
+
+- Bucket này được sử dụng để lưu chuỗi dữ liệu nhiệt độ theo thời gian.
+
+Bước 4. Chọn measurement
+
+- Trong cột tiếp theo, tại mục: ```_measurement```
+
+- tích chọn: ```weather```
+
+- Measurement có thể hiểu gần giống như tên bảng trong cơ sở dữ liệu quan hệ. Trong ứng dụng này, measurement weather chứa dữ liệu thời tiết.
+
+Bước 5. Chọn field nhiệt độ
+
+- Trong cột: ```_field```
+
+- tích chọn: ```temperature```
+
+- Field temperature là giá trị nhiệt độ được Node-RED gửi vào InfluxDB.
+
+Bước 6. Chọn khoảng thời gian
+
+- Tại mục chọn thời gian ở phía trên bên phải, chọn: Past 1h
+
+Bước 7. Chạy truy vấn
+
+Nhấn nút: ```SUBMIT```
+
+- InfluxDB sẽ hiển thị biểu đồ nhiệt độ theo thời gian.
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/aedeba0e-21d7-4d3d-ba5c-39cc6f802191" />
 
 
+### B. Thêm container Grafana
 
+Sau khi xác nhận InfluxDB có dữ liệu, quay lại Terminal Ubuntu.
 
+Bước 1. Kiểm tra cổng 3000
 
+kiểm tra máy Ubuntu đã có ứng dụng nào dùng cổng này chưa:
+
+```
+sudo ss -tulpn | grep :3000
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/a0a9e36d-e680-4462-8c70-b5a034cca36e" />
+
+Bước 2. Bổ sung tài khoản Grafana vào .env
+
+Mở file:
+
+```
+nano .env
+```
+
+Giữ nguyên các dòng hiện tại và thêm hai dòng cuối:
+
+```
+GRAFANA_ADMIN_USER=admin
+GRAFANA_ADMIN_PASSWORD=admin123
+```
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/dfb9180a-e686-4ef0-adb1-03c729e74eb5" />
+
+Lưu:
+
+- Ctrl + O
+- Enter
+- Ctrl + X
+
+Bước 3. Mở file Docker Compose
+
+Chạy:
+
+```
+nano docker-compose.yml
+```
+
+Thêm service Grafana ngay dưới service influxdb:
+
+```
+  grafana:
+    image: grafana/grafana:12.4
+    container_name: monitor_grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - monitor_network
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/2150de30-bf50-454c-898a-d6ab277f2f61" />
+
+Bước 4. Khai báo volume Grafana
+
+Ở cuối file, tìm phần:
+
+```
+volumes:
+```
+
+Thêm dòng:
+
+```
+  grafana_data:
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/890e1894-0e72-4e06-8d1c-bbe0465ebb51" />
+
+Bước 5. Khởi động Grafana
+
+Chạy:
+
+```
+docker compose up -d
+```
+
+Sau khi hoàn tất, kiểm tra:
+
+```
+docker compose ps
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/89db348e-bfed-4c31-a3d9-f313bee67aae" />
+
+Kết quả có bốn container:
+
+monitor_nodered
+monitor_mariadb
+monitor_influxdb
+monitor_grafana
+
+Bước 9. Truy cập Grafana
+
+Trên trình duyệt Windows, mở:
+
+```
+http://192.168.1.99:3000
+```
+
+Đăng nhập:
+
+- Username: admin
+- Password: admin123
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c6e8233b-358a-4d52-a32c-686fa7c8a6ec" />
 
 
 
