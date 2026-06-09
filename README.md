@@ -906,17 +906,172 @@ Nhấn: Done
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/41fccf7a-8f89-4a39-a291-f56e020ae57a" />
 
 
+5. Tạo node Debug để kiểm tra dữ liệu API
+
+Tại thanh tìm kiếm node bên trái, nhập:
+
+```
+debug
+```
+
+Nhấp đúp vào node debug.
+
+Điền thông tin:
+
+- Name:	Xem dữ liệu API
+- Output:	msg.payload
+
+Nhấn: Done
+
+6. Chạy flow
+
+Nhấn nút: ```Deploy```
+
+- Có thể bấm nút nhỏ bên trái node: Lấy nhiệt độ mỗi 60 giây để chạy thử thủ công.
+
+**Kiểm tra kết quả**
+
+Mở tab: Debug ở phía bên phải giao diện Node-RED.
+
+Kết quả trả về có dạng:
+
+```
+msg.payload : Object
+    latitude: 21.61687
+    longitude: 105.84442
+    timezone: "Asia/Bangkok"
+    timezone_abbreviation: "GMT+7"
+    current_units: object
+    current: object
+```
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/6ce3a118-4d77-4972-bbc6-c776d2a02b59" />
+
+## PHẦN 6. Phân loại nhiệt độ và lưu giá trị mới nhất vào MariaDB
+
+Bước 1. Cài node kết nối MariaDB
+
+Cài thêm module: ```node-red-node-mysql```
+
+1.1. Mở Palette Manager
+
+Trong giao diện Node-RED, nhấn biểu tượng ba gạch ngang ở góc trên bên phải: ☰
+
+Chọn: ```Manage palette```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/3b0747d8-42b3-4545-8a94-3b3fc0a6b379" />
+
+1.2. Tìm module MySQL
+
+- Chọn tab: ```Install```
+
+- Tại ô tìm kiếm, nhập: ```node-red-node-mysql```
+
+- Khi kết quả xuất hiện, nhấn: ```Install```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/c00400fd-8441-4c0d-9347-d447a400bb2a" />
+
+1.3. Kiểm tra node mới
+
+- Tại ô tìm kiếm node bên trái, nhập: mysql
+
+Bạn cần thấy node màu xanh có tên:
+
+mysql
+
+Chưa kéo node này vào flow ngay. Trước tiên, hãy tạo node xử lý dữ liệu.
 
 
+Bước 2. Thêm node function
 
+2.1. Tìm node Function
 
+- Tại ô tìm kiếm bên trái, nhập: function
 
+- Nối node JSON với Function
 
+- Mở cấu hình Function
 
+Tại ô: Name
 
+nhập: Phân loại và tạo câu SQL
 
+Nội dung code:
 
+```
+// Lấy object current từ dữ liệu Open-Meteo
+const current = msg.payload.current;
 
+// Kiểm tra dữ liệu đầu vào
+if (!current || current.temperature_2m === undefined) {
+    node.error("Không đọc được nhiệt độ từ Open-Meteo", msg);
+    return null;
+}
+
+// Lấy nhiệt độ và thời gian
+const temperature = Number(current.temperature_2m);
+
+let observedAt = String(current.time).replace("T", " ");
+
+// MariaDB DATETIME cần đủ giây: YYYY-MM-DD HH:mm:ss
+if (observedAt.length === 16) {
+    observedAt += ":00";
+}
+
+// Phân loại trạng thái nhiệt độ
+let status = "OK";
+
+if (temperature < 18) {
+    status = "ALERT LOW";
+} else if (temperature > 35) {
+    status = "ALERT HIGH";
+}
+
+// Tạo câu SQL để ghi đè dòng có id = 1
+msg.topic = `
+    INSERT INTO weather_latest (
+        id,
+        city,
+        temperature,
+        status,
+        observed_at
+    )
+    VALUES (
+        1,
+        ?,
+        ?,
+        ?,
+        ?
+    )
+    ON DUPLICATE KEY UPDATE
+        city = VALUES(city),
+        temperature = VALUES(temperature),
+        status = VALUES(status),
+        observed_at = VALUES(observed_at);
+`;
+
+// Gán dữ liệu vào các dấu ? trong câu SQL
+msg.payload = [
+    "Thai Nguyen",
+    temperature,
+    status,
+    observedAt
+];
+
+// Tạo thêm object để dễ kiểm tra trên Debug
+msg.weather = {
+    city: "Thai Nguyen",
+    temperature: temperature,
+    status: status,
+    observed_at: observedAt
+};
+
+return msg;
+```
+
+- Nhấn: Done
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/06917934-4165-4944-a32f-40e6625e912b" />
 
 
 
