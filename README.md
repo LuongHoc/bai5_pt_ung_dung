@@ -1,4 +1,4 @@
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/261d4857-527d-4a89-80fe-5df698663a23" /># Họ và tên: Lương Văn Học - MSSV: K225480106025
+# Họ và tên: Lương Văn Học - MSSV: K225480106025
 # Lớp: K58KTP
 # Môn: Phát triển ứng dụng với mã nguồn mở - tee0421
 # Bài tập 5:
