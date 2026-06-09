@@ -1,4 +1,4 @@
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/7d33f09b-642b-4231-884e-8650523d75cf" /># Họ và tên: Lương Văn Học - MSSV: K225480106025
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/261d4857-527d-4a89-80fe-5df698663a23" /># Họ và tên: Lương Văn Học - MSSV: K225480106025
 # Lớp: K58KTP
 # Môn: Phát triển ứng dụng với mã nguồn mở - tee0421
 # Bài tập 5:
@@ -2580,7 +2580,175 @@ Ctrl + F5
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/5055850f-37bc-479c-a40c-c0809b928c91" />
 
 
+## PHẦN 14. Tạo Telegram Bot và lấy Chat ID của nhóm
 
+1. Tạo Telegram Bot bằng BotFather
+
+Mở Telegram tìm tài khoản chính thức: ```@BotFather```
+
+Gửi lệnh:
+
+```
+/newbot
+```
+
+BotFather yêu cầu nhập tên bot. Nhập:
+
+```
+TNUT Weather Monitor
+```
+
+Tiếp theo, BotFather yêu cầu nhập username. Username bắt buộc kết thúc bằng chữ: ```bot```
+
+```
+tnut_weather_monitor_2026_bot
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/1ba41f14-7a24-4ff8-810e-5e3f5f4a87f5" />
+
+2. Tạo nhóm Telegram để nhận cảnh báo
+
+- Tạo một nhóm Telegram mới.
+
+- Tên nhóm có thể đặt: TNUT Weather Monitor Alert
+
+- Thêm ít nhất một người khác vào nhóm. Khi cộng thêm bạn và bot, nhóm sẽ có các thành viên cần thiết để demo cảnh báo.
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c1f9f0d9-bcf3-4a87-9110-bc4ffac1ccd3" />
+
+4. Gửi một lệnh thử nghiệm trong nhóm
+
+Trong nhóm Telegram, gửi:
+
+/test
+
+
+
+5. Lấy Chat ID bằng Terminal Ubuntu
+
+Quay lại Terminal Ubuntu.
+
+Chạy lệnh sau và thay TOKEN_CUA_BAN bằng token BotFather vừa cấp:
+
+curl "https://api.telegram.org/botTOKEN_CUA_BAN/getUpdates"
+
+Ví dụ minh họa:
+
+curl "https://api.telegram.org/bot1234567890:AAExampleToken/getUpdates"
+
+Không sử dụng token ví dụ ở trên.
+
+Phương thức getUpdates được Telegram Bot API cung cấp để nhận các cập nhật mới gửi đến bot.
+
+6. Tìm Chat ID trong kết quả
+
+Kết quả sẽ có dạng JSON gần giống:
+
+{
+  "ok": true,
+  "result": [
+    {
+      "update_id": 123456789,
+      "message": {
+        "chat": {
+          "id": -1009876543210,
+          "title": "TNUT Weather Monitor Alert",
+          "type": "supergroup"
+        },
+        "text": "/test"
+      }
+    }
+  ]
+}
+
+Tìm phần:
+
+"chat": {
+  "id": -1009876543210
+}
+
+Giá trị cần sao chép là:
+
+-1009876543210
+
+Chat ID của nhóm thường là số âm. Hãy sao chép đầy đủ cả dấu trừ ở đầu.
+
+7. Nếu kết quả chưa xuất hiện Chat ID
+Trường hợp kết quả rỗng
+
+Nếu nhận được:
+
+{
+  "ok": true,
+  "result": []
+}
+
+thực hiện lại:
+
+Kiểm tra bot đã được thêm vào nhóm.
+Gửi lại trong nhóm:
+/test
+Chạy lại:
+curl "https://api.telegram.org/botTOKEN_CUA_BAN/getUpdates"
+Trường hợp Telegram báo lỗi token
+
+Nếu nhận được lỗi:
+
+Unauthorized
+
+token đã nhập sai. Sao chép lại token từ BotFather.
+
+8. Kiểm tra bot bằng lệnh gửi tin nhắn trực tiếp
+
+Sau khi có Chat ID, chạy thử lệnh sau. Thay token và Chat ID bằng giá trị thật:
+
+curl -X POST "https://api.telegram.org/botTOKEN_CUA_BAN/sendMessage" \
+  -d "chat_id=CHAT_ID_CUA_NHOM" \
+  --data-urlencode "text=TEST: Bot cảnh báo thời tiết đã kết nối thành công."
+
+Ví dụ cấu trúc:
+
+curl -X POST "https://api.telegram.org/bot1234567890:AAExampleToken/sendMessage" \
+  -d "chat_id=-1009876543210" \
+  --data-urlencode "text=TEST: Bot cảnh báo thời tiết đã kết nối thành công."
+
+Phương thức sendMessage của Telegram Bot API dùng để gửi tin nhắn văn bản đến một chat_id.
+
+Nếu nhóm Telegram nhận được tin nhắn:
+
+TEST: Bot cảnh báo thời tiết đã kết nối thành công.
+
+thì bot đã hoạt động đúng.
+
+9. Bổ sung cấu hình vào file .env
+
+Sau khi kiểm tra bot thành công, quay lại thư mục dự án:
+
+cd ~/app-monitor-realtime
+
+Mở file:
+
+nano .env
+
+Thêm hai dòng cuối:
+
+TELEGRAM_BOT_TOKEN=TOKEN_THAT_CUA_BAN
+TELEGRAM_CHAT_ID=CHAT_ID_THAT_CUA_NHOM
+
+Ví dụ cấu trúc:
+
+TELEGRAM_BOT_TOKEN=1234567890:AAExampleToken
+TELEGRAM_CHAT_ID=-1009876543210
+
+Dùng token và Chat ID thật của bạn, không dùng giá trị ví dụ.
+
+Lưu file:
+
+Ctrl + O
+Enter
+Ctrl + X
+
+File .env đã nằm trong .gitignore, vì vậy không đẩy file này lên GitHub.
 
 
 
