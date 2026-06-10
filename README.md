@@ -206,7 +206,7 @@ ls
 
 <img width="1108" height="640" alt="image" src="https://github.com/user-attachments/assets/67c25ea3-9bb4-4a60-95c1-18d897586c53" />
 
-## 1.4.2. Tạo file SQL khởi tạo bảng
+### 1.4.2. Tạo file SQL khởi tạo bảng
 
 Chạy:
 
@@ -375,7 +375,7 @@ Kết quả cần có ba container:
 - monitor_mariadb
 - monitor_influxdb
 
-### 1.5.2. Kiểm tra InfluxDB bằng trình duyệt
+### 1.5.3. Kiểm tra InfluxDB bằng trình duyệt
 
 Trên Windows, mở:
 ```
@@ -979,13 +979,13 @@ from(bucket: "weather-history")
   |> yield(name: "mean")
 ```
 
-### 2.3.4. Kiểm tra biểu đồ
+### 3.2.4. Kiểm tra biểu đồ
 
 - Sau khi dán truy vấn, Grafana thường tự chạy truy vấn. Nếu chưa thấy biểu đồ, nhấn: ```Refresh```
 
 - Thấy đường biểu diễn nhiệt độ tương tự biểu đồ đã xuất hiện trong InfluxDB Data Explorer.
 
-### 2.3.5. Cấu hình Panel
+### 3.2.5. Cấu hình Panel
 
 - Ở phần bên phải Chọn: ```Time series```
 
@@ -999,19 +999,17 @@ Kiểu Time series phù hợp để biểu diễn nhiệt độ thay đổi theo
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/58134bb1-1dfd-4bbf-90d6-33e74f31ed40" />
 
-### 2.3.6. Lưu Dashboard
+### 3.2.6. Lưu Dashboard
 
 - Save dashboard
 - Nhập tên Dashboard: Weather Monitor
 - Nhấn: Save
 
-# 3. Xây dựng Flask API và website Nginx
+# 4. Xây dựng Flask API và website Nginx
 
-## 3.1. Xây dựng Flask API
+## 4.1. Xây dựng Flask API
 
-## PHẦN 11. Tạo Flask API đọc dữ liệu từ MariaDB
-
-### 3.1.1. Tạo thư mục API
+### 4.1.1. Tạo thư mục API
 
 Tạo thư mục:
 
@@ -1027,7 +1025,7 @@ ls
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/a369608e-9665-48cb-9aa5-0259978992e5" />
 
-### 3.1.2. Tạo file thư viện Python
+### 4.1.2. Tạo file thư viện Python
 
 Chạy:
 
@@ -1050,7 +1048,7 @@ Lưu file:
 - Enter
 - Ctrl + X
 
-### 3.1.3. Tạo chương trình Flask API
+### 4.1.3. Tạo chương trình Flask API
 
 Chạy:
 
@@ -1151,7 +1149,7 @@ Lưu file:
 - Enter
 - Ctrl + X
 
-### 3.1.4. Tạo Dockerfile cho Flask API
+### 4.1.4. Tạo Dockerfile cho Flask API
 
 Dockerfile mô tả các bước tạo image từ source code.
 
@@ -1187,7 +1185,7 @@ Lưu file:
 - Enter
 - Ctrl + X
 
-### 3.1.5. Bổ sung service API vào Docker Compose
+### 4.1.5. Bổ sung service API vào Docker Compose
 
 Mở file:
 
@@ -1225,7 +1223,7 @@ Lưu file:
 - Enter
 - Ctrl + X
 
-### 3.1.6. Build và chạy Flask API
+### 4.1.6. Build và chạy Flask API
 
 Chạy:
 
@@ -1233,7 +1231,7 @@ Chạy:
 docker compose up -d --build api
 ```
 
-### 3.1.7. Kiểm tra trạng thái container
+### 4.1.7. Kiểm tra trạng thái container
 
 Chạy:
 
@@ -1310,9 +1308,9 @@ http://192.168.1.99:5001/api/latest
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/26691730-60e4-491e-ab48-22076052f19c" />
 
 
-## 3.2. Tạo giao diện web và chạy bằng Nginx
+## 4.2. Tạo giao diện web và chạy bằng Nginx
 
-### 3.2.1. Tạo thư mục front-end
+### 4.2.1. Tạo thư mục front-end
 
 Tạo thư mục:
 
@@ -1320,7 +1318,7 @@ Tạo thư mục:
 mkdir -p frontend
 ```
 
-### 3.2.2. Tạo file HTML
+### 4.2.2. Tạo file HTML
 
 Chạy:
 
@@ -1432,7 +1430,7 @@ Lưu file:
 - Enter
 - Ctrl + X
 
-### 3.2.3. Tạo file CSS
+### 4.2.3. Tạo file CSS
 
 Chạy:
 
@@ -1569,7 +1567,7 @@ Lưu:
 - Enter
 - Ctrl + X
 
-### 3.2.4. Tạo file JavaScript
+### 4.2.4. Tạo file JavaScript
 
 Chạy:
 
@@ -1638,7 +1636,7 @@ Lưu:
 - Enter
 - Ctrl + X
 
-### 3.2.5. Tạo file cấu hình Nginx
+### 4.2.5. Tạo file cấu hình Nginx
 
 Chạy:
 
@@ -1680,7 +1678,7 @@ Lưu:
 - Enter
 - Ctrl + X
 
-### 3.2.7. Khai báo service Nginx
+### 4.2.7. Khai báo service Nginx
 
 Mở file:
 
@@ -1715,7 +1713,7 @@ Lưu:
 - Enter
 - Ctrl + X
 
-### 3.2.7. Chạy container Nginx
+### 4.2.8. Chạy container Nginx
 
 Chạy:
 
@@ -1735,7 +1733,7 @@ Kết quả:
 
 Container mới cần có cổng: 0.0.0.0:8082->80/tcp
 
-### 3.2.8. Kiểm tra reverse proxy bằng Terminal
+### 4.2.9. Kiểm tra reverse proxy bằng Terminal
 
 Chạy:
 
@@ -1765,9 +1763,9 @@ http://192.168.1.99:8082
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/5d14be2e-6a97-42a0-88ab-fe7699a332c6" />
 
-## 2.3. Nhúng biểu đồ Grafana vào trang web
+## 4.3. Nhúng biểu đồ Grafana vào trang web
 
-### 2.3.1. Lấy mã iframe của panel Grafana
+### 4.3.1. Lấy mã iframe của panel Grafana
 
 Quay lại Grafana bằng cửa sổ trình duyệt thông thường:
 
@@ -1792,7 +1790,7 @@ Cấu hình trong cửa sổ Embed
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c35f6c2f-2ff2-4c7a-944a-df8402459461" />
 
-### 2.3.2 Thêm iframe vào file HTML
+### 4.3.2 Thêm iframe vào file HTML
 
 Quay lại Terminal Ubuntu:
 
@@ -1829,7 +1827,7 @@ Lưu file:
 - Enter
 - Ctrl + X
 
-### 2.3.3 Thêm CSS cho iframe
+### 4.3.3 Thêm CSS cho iframe
 
 Mở file:
 
@@ -1856,7 +1854,7 @@ Lưu file:
 - Enter
 - Ctrl + X
 
-### 2.3.4. Mở lại trang web
+### 4.3.4. Mở lại trang web
 
 
 Trên trình duyệt, mở lại:
@@ -1873,11 +1871,11 @@ Ctrl + F5
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/5055850f-37bc-479c-a40c-c0809b928c91" />
 
-# 4. Tích hợp Telegram Bot
+# 5. Tích hợp Telegram Bot
 
-## 4.1. Tạo Telegram Bot
+## 5.1. Tạo Telegram Bot
 
-### 4.1.1. Tạo bot
+### 5.1.1. Tạo bot
 Mở Telegram tìm tài khoản chính thức: ```@BotFather```
 
 Gửi lệnh:
@@ -1900,7 +1898,7 @@ tnut_weather_monitor_2026_bot
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/1ba41f14-7a24-4ff8-810e-5e3f5f4a87f5" />
 
-### 4.1.2. Tạo nhóm Telegram để nhận cảnh báo
+### 5.1.2. Tạo nhóm Telegram để nhận cảnh báo
 
 - Tên nhómt: TNUT Weather Monitor Alert
 
@@ -1909,7 +1907,7 @@ tnut_weather_monitor_2026_bot
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c1f9f0d9-bcf3-4a87-9110-bc4ffac1ccd3" />
 
 
-### 4.1.3. Lấy Chat ID bằng Terminal Ubuntu
+### 5.1.3. Lấy Chat ID bằng Terminal Ubuntu
 
 - Gửi một lệnh thử nghiệm trong nhóm
 
@@ -1935,7 +1933,7 @@ ID là:
 -5269158210
 ```
 
-## 4.1.4. Kiểm tra bot bằng lệnh gửi tin nhắn trực tiếp
+## 5.1.4. Kiểm tra bot bằng lệnh gửi tin nhắn trực tiếp
 
 Sau khi có Chat ID, chạy thử lệnh sau. Thay token và Chat ID bằng giá trị thật:
 
@@ -1951,7 +1949,7 @@ curl -X POST "https://api.telegram.org/bot8514316926:AAFXqgzgOC-yMNR08k-kOq8EKQo
 
 Nhóm Telegram nhận được tin nhắn: TEST: Bot cảnh báo thời tiết đã kết nối thành công. thì bot đã hoạt động đúng.
 
-## 4.2. Tích hợp Telegram Bot vào Node-RED
+## 5.2. Tích hợp Telegram Bot vào Node-RED
 
 ### 4.2.1. Cho container Node-RED đọc file .env
 
@@ -1988,7 +1986,7 @@ docker compose up -d --force-recreate nodered
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/020a307e-d40c-45e6-b134-ac016443e619" />
 
-### 4.2.2. Thêm node Function kiểm tra cảnh báo
+### 5.2.2. Thêm node Function kiểm tra cảnh báo
 
 - Đặt tên: Kiểm tra cảnh báo Telegram
 
@@ -2087,7 +2085,7 @@ return msg;
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/fb3737e7-cd08-40fb-b710-99c4b4135947" />
 
 
-### 4.2.3. Thêm node HTTP Request gửi Telegram
+### 5.2.3. Thêm node HTTP Request gửi Telegram
 
 Nối dây: Kiểm tra cảnh báo Telegram -> http request
 
@@ -2102,7 +2100,7 @@ Nhấn: Done
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/b7c2e4d5-436f-4b8d-8651-7365f15462e5" />
 
-### 4.2.4. Thêm node Function xác nhận gửi thành công
+### 5.2.4. Thêm node Function xác nhận gửi thành công
 
 - Nối: Gửi cảnh báo Telegram -> function
 
@@ -2137,7 +2135,7 @@ return msg;
 
 Nhấn: Done
 
-### 4.2.5. Thêm node Debug kiểm tra kết quả
+### 5.2.5. Thêm node Debug kiểm tra kết quả
 
 - Nối dây: Gửi cảnh báo Telegram -> Xem kết quả Telegram
 
@@ -2151,7 +2149,7 @@ Output:	msg.payload
 
 - Nhấn: Deploy
 
-### 4.2.6. Tạo node kiểm thử cảnh báo
+### 5.2.6. Tạo node kiểm thử cảnh báo
 
 
 **Bước 1. Tạo node inject ```test ALERT HIGH```**
@@ -2217,7 +2215,7 @@ Nhấn: Deploy
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/4a49dd3f-3f24-422b-8ac4-dc71a849e90e" />
 
-### 4.2.7. Kiểm thử Telegram Alert
+### 5.2.7. Kiểm thử Telegram Alert
 
 Thực hiện theo thứ tự:
 
@@ -2232,8 +2230,8 @@ Thực hiện theo thứ tự:
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/8805e45a-c202-4fd6-8795-f89a297acaac" />
 
-# 5. Đóng gói và khôi phục hệ thống offline
-## 5.1. Tạo thư mục backup
+# 6. Đóng gói và khôi phục hệ thống offline
+## 6.1. Tạo thư mục backup
 
 Chạy:
 ```
@@ -2241,7 +2239,7 @@ mkdir -p backup
 ```
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/e160a804-24c0-47a1-a59f-905a8960b1c4" />
 
-## 5.2. Sao lưu source code
+## 6.2. Sao lưu source code
 
 Chạy:
 ```
@@ -2262,7 +2260,7 @@ ls -lh backup
 
 Thấy: ```app-monitor-source.tar.gz```
 
-## 5.3. Xuất Docker image
+## 6.3. Xuất Docker image
   
 **Xem chính xác tên các Docker image**
 
@@ -2298,7 +2296,7 @@ app-monitor-images.tar
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/a8d9d5dc-9af8-45f9-b3ce-cd450bdfd614" />
 
-## 5.4. Xóa container 
+## 6.4. Xóa container 
 
 Chạy:
 ```
@@ -2319,9 +2317,9 @@ docker volume ls | grep app-monitor-realtime
 ```
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/36b8f394-8883-41f0-b637-e24f99d2225d" />
 
-## 5.5. Nạp lại Docker image từ file nén
+## 6.5. Nạp lại Docker image từ file nén
 
-### 5.5.1. Load image
+### 6.5.1. Load image
 
 Chạy:
 ```
@@ -2332,7 +2330,7 @@ Lệnh có thể mất một vài phút.
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/0b9b8b72-0880-4327-bd13-025534ef96ca" />
 
 
-### 5.5.2. Kiểm tra danh sách image
+### 6.5.2. Kiểm tra danh sách image
 
 Chạy:
 ```
@@ -2340,9 +2338,9 @@ docker image ls
 ```
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/4f1fcd7a-cb42-44d4-9bb5-2b0d51d213cc" />
 
-## 5.6. Khôi phục container bằng Docker Compose
+## 6.6. Khôi phục container bằng Docker Compose
 
-### 5.6.1. Khởi động lại toàn bộ ứng dụng
+### 6.6.1. Khởi động lại toàn bộ ứng dụng
 
 Chạy:
 ```
@@ -2352,7 +2350,7 @@ Docker Compose sẽ dùng file: ```docker-compose.yml``` để tạo lại sáu 
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/0c8a45cc-2dbf-467c-a096-0de55b0c0bf1" />
 
-### 5.6.2. Kiểm tra container
+### 6.6.2. Kiểm tra container
 
 ```
 docker compose ps
@@ -2370,9 +2368,9 @@ Trạng thái cần là: Up
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/c02ce3e8-9ec0-4e65-8a24-217939df08ab" />
 
-## 8.7. Kiểm tra hệ thống sau khôi phục
+## 6.7. Kiểm tra hệ thống sau khôi phục
 
-### 8.7.1. Kiểm tra API Flask
+### 6.7.1. Kiểm tra API Flask
 
 ```
 curl http://localhost:5001/health
@@ -2382,7 +2380,7 @@ curl http://localhost:5001/health
 curl http://localhost:5001/api/latest
 ```
 
-### 8.7.2. Kiểm tra Nginx reverse proxy
+### 6.7.2. Kiểm tra Nginx reverse proxy
 
 ```
 curl http://localhost:8082/api/latest
@@ -2390,7 +2388,7 @@ curl http://localhost:8082/api/latest
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/c2bfd5a3-b100-4ee4-9b11-85bdc11e1687" />
 
-### 8.7.3. Kiểm tra website
+### 6.7.3. Kiểm tra website
 
 Mở trình duyệt:
 ```
@@ -2398,7 +2396,7 @@ http://192.168.1.99:8082
 ```
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/52953933-8ab6-4171-b8d3-5efa0025b9c4" />
 
-### 8.7.4. Kiểm tra Node-RED
+### 6.7.4. Kiểm tra Node-RED
 
 Mở:
 ```
@@ -2408,7 +2406,7 @@ http://192.168.1.99:1881
 
 Flow cũ cần vẫn còn đầy đủ
 
-### 8.7.5. Kiểm tra Grafana
+### 6.7.5. Kiểm tra Grafana
 
 Mở:
 ```
@@ -2421,7 +2419,7 @@ Dashboard -> Weather Monitor
 
 Weather Monitor vẫn cần tồn tại.
 
-### 8.7.6. Kiểm tra lịch sử InfluxDB
+### 6.7.6. Kiểm tra lịch sử InfluxDB
 
 Mở:
 
@@ -2435,7 +2433,7 @@ Data Explorer → weather-history → weather → temperature
 
 Biểu đồ lịch sử cũ vẫn cần hiển thị.
 
-### 8.7.7. Kiểm thử Telegram
+### 6.7.7. Kiểm thử Telegram
 
 Trong Node-RED, bấm:
 
