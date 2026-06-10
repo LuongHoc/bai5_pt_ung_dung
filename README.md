@@ -864,7 +864,7 @@ array[2]
 PHẦN 8. Kiểm tra dữ liệu InfluxDB và thêm Grafana
 
 
-### A. Kiểm tra dữ liệu lịch sử trong InfluxDB
+### 2.3.5. Kiểm tra dữ liệu lịch sử trong InfluxDB
 
 Bước 1. Truy cập giao diện InfluxDB
 
@@ -872,23 +872,17 @@ Bước 1. Truy cập giao diện InfluxDB
 
 - Đăng nhập bằng tài khoản đã khai báo trong file .env:
 
-Username: admin
+Username: ```admin```
 
-Password: admin123456
+Password: ```admin123456```
 
 Bước 2. Mở Data Explorer
 
-- Tại menu bên trái, chọn: Data Explorer
-
-- Data Explorer cho phép truy vấn và trực quan hóa dữ liệu lịch sử đã lưu trong InfluxDB.
+- Tại menu bên trái, chọn: ```Data Explorer```
 
 Bước 3. Chọn bucket
 
-- Trong cột: FROM
-
-- chọn bucket: weather-history
-
-- Bucket này được sử dụng để lưu chuỗi dữ liệu nhiệt độ theo thời gian.
+- Trong cột: FROM -> ```weather-history```
 
 Bước 4. Chọn measurement
 
@@ -896,15 +890,11 @@ Bước 4. Chọn measurement
 
 - tích chọn: ```weather```
 
-- Measurement có thể hiểu gần giống như tên bảng trong cơ sở dữ liệu quan hệ. Trong ứng dụng này, measurement weather chứa dữ liệu thời tiết.
-
 Bước 5. Chọn field nhiệt độ
 
 - Trong cột: ```_field```
 
 - tích chọn: ```temperature```
-
-- Field temperature là giá trị nhiệt độ được Node-RED gửi vào InfluxDB.
 
 Bước 6. Chọn khoảng thời gian
 
@@ -914,15 +904,12 @@ Bước 7. Chạy truy vấn
 
 Nhấn nút: ```SUBMIT```
 
-- InfluxDB sẽ hiển thị biểu đồ nhiệt độ theo thời gian.
+InfluxDB sẽ hiển thị biểu đồ nhiệt độ theo thời gian.
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/aedeba0e-21d7-4d3d-ba5c-39cc6f802191" />
 
 
-
-
-
-## PHẦN 9. Kết nối Grafana với InfluxDB
+# 3. Trực quan hóa dữ liệu bằng Grafana
 1. Mở phần Data Sources
 
 - Trong giao diện Grafana, nhìn menu bên trái và chọn: ```Connections```
