@@ -1765,72 +1765,9 @@ http://192.168.1.99:8082
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/5d14be2e-6a97-42a0-88ab-fe7699a332c6" />
 
-## PHẦN 13. Nhúng biểu đồ Grafana vào trang web
-### Bước 1. Cho phép nhúng iframe trong Grafana
+## 2.3. Nhúng biểu đồ Grafana vào trang web
 
-Mở file Docker Compose:
-
-```
-nano docker-compose.yml
-```
-
-- Tìm service: ```grafana:```
-
-- Bổ sung ba dòng cấu hình mới bên dưới mật khẩu:
-
-```
-      GF_SECURITY_ALLOW_EMBEDDING: "true"
-      GF_AUTH_ANONYMOUS_ENABLED: "true"
-      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
-```
-
-<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/6b909093-8998-4da0-8049-295131dd6ea6" />
-
-Lưu file:
-
-- Ctrl + O
-- Enter
-- Ctrl + X
-
-Giải thích
-
-- GF_SECURITY_ALLOW_EMBEDDING:	Cho phép hiển thị Grafana trong iframe
-- GF_AUTH_ANONYMOUS_ENABLED:	Cho phép xem biểu đồ mà không cần đăng nhập
-- GF_AUTH_ANONYMOUS_ORG_ROLE:	Chỉ cấp quyền xem, không cấp quyền sửa
-
-Bước 2. Khởi động lại riêng container Grafana
-
-Chạy:
-
-```
-docker compose up -d --force-recreate grafana
-```
-
-Kiểm tra:
-
-```
-docker compose ps
-```
-
-Container monitor_grafana phải có trạng thái Up: 
-
-<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/cb2cea4c-24db-4306-b5f8-d227491ebeac" />
-
-Bước 3. Kiểm tra quyền xem ẩn danh
-
-- Mở cửa sổ ẩn danh trên trình duyệt: ```Ctrl + Shift + N```
-
-- Truy cập:
-
-```
-http://192.168.1.99:3000
-```
-
-Grafana mở được mà không yêu cầu đăng nhập, cấu hình đã có hiệu lực.
-
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/6fe94730-f56d-4c96-b5cc-84f157bf569f" />
-
-Bước 4. Lấy mã iframe của panel Grafana
+### 2.3.1. Lấy mã iframe của panel Grafana
 
 Quay lại Grafana bằng cửa sổ trình duyệt thông thường:
 
@@ -1855,7 +1792,7 @@ Cấu hình trong cửa sổ Embed
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c35f6c2f-2ff2-4c7a-944a-df8402459461" />
 
-Bước 5. Thêm iframe vào file HTML
+### 2.3.2 Thêm iframe vào file HTML
 
 Quay lại Terminal Ubuntu:
 
@@ -1892,7 +1829,7 @@ Lưu file:
 - Enter
 - Ctrl + X
 
-Bước 6. Thêm CSS cho iframe
+### 2.3.3 Thêm CSS cho iframe
 
 Mở file:
 
@@ -1919,7 +1856,7 @@ Lưu file:
 - Enter
 - Ctrl + X
 
-Bước 7. Mở lại trang web
+### 2.3.4. Mở lại trang web
 
 
 Trên trình duyệt, mở lại:
@@ -1936,6 +1873,7 @@ Ctrl + F5
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/5055850f-37bc-479c-a40c-c0809b928c91" />
 
+Tích hợp Telegram Bot
 
 ## PHẦN 14. Tạo Telegram Bot và lấy Chat ID của nhóm
 
