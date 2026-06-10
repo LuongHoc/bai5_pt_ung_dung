@@ -5,12 +5,13 @@
 
 
 
-# B. Thực hành 
+# B. Thực hành
 
-## Phần 1. Triển khai hệ thống
-### 1.1. Chuẩn bị môi trường
+# Phần 1. Chuẩn bị môi trường và triển khai các service
 
-#### 1.1.1. Kiểm tra Docker 
+## 1.1. Kiểm tra Docker 
+
+### 1.1.1. Kiểm tra phiên bản Docker
 
 Chạy:
 
@@ -26,7 +27,9 @@ sudo docker compose version
 
 <img width="1105" height="644" alt="image" src="https://github.com/user-attachments/assets/ace7eb06-42c5-4e18-a59d-636d04fe5d99" />
 
-#### 1.1.2. Tạo thư mục dự án
+## 1.2. Tạo thư mục dự án
+
+### 1.2.1. Tạo thư mục
 
 Chạy:
 
@@ -34,13 +37,13 @@ Chạy:
 mkdir -p ~/app-monitor-realtime
 ```
 
-Đi vào thư mục:
+### 1.2.2. Đi vào thư mục:
 
 ```
 cd ~/app-monitor-realtime
 ```
 
-Kiểm tra vị trí hiện tại:
+### 1.2.3. Kiểm tra vị trí hiện tại:
 
 ```
 pwd
@@ -48,11 +51,9 @@ pwd
 
 <img width="1109" height="642" alt="image" src="https://github.com/user-attachments/assets/4b868467-6db3-465d-be6c-b899081f507f" />
 
-### 1.2. Triển khai Node-RED
+## 1.2. Triển khai Node-RED
 
-#### 1.2.1. Khai báo service Node-RED
-
-Tạo file ```docker-compose.yml```
+### 1.2.1. Tạo file ```docker-compose.yml```
 
 Chạy:
 
@@ -60,7 +61,7 @@ Chạy:
 nano docker-compose.yml
 ```
 
-Dán nội dung sau:
+### 1.2.2. Khai báo service Node-RED
 
 ```
 services:
@@ -85,9 +86,7 @@ networks:
 
 <img width="1103" height="639" alt="image" src="https://github.com/user-attachments/assets/7567348a-beb0-47a6-87f8-421ac5e875e1" />
 
-#### 1.2.2. Khởi động Node-RED
-
-**Bước 1: Chạy container Node-RED**
+### 1.2.3. Khởi động Node-RED
 
 Chạy:
 
@@ -97,7 +96,7 @@ docker compose up -d
 
 <img width="1104" height="641" alt="image" src="https://github.com/user-attachments/assets/fd4e9272-7c17-41f9-a336-d70583ef3cc8" />
 
-**Bước 2. Kiểm tra container mới**
+**Kiểm tra container mới**
 
 Chạy:
 
@@ -108,7 +107,7 @@ docker compose ps
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/48586b10-ecd6-4b48-aa6f-4eb4a605191f" />
 
 
-**Bước 3. Xem log Node-RED**
+**Xem log Node-RED**
 
 Chạy:
 
@@ -118,7 +117,7 @@ docker logs monitor_nodered --tail 30
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/fd45779d-44a4-43b5-bf30-de16967612e1" />
 
-**Bước 4. Mở Node-RED từ trình duyệt Windows**
+### 1.2.4. Mở Node-RED từ trình duyệt Windows
 
 Trên Windows, mở trình duyệt và nhập:
 
@@ -128,10 +127,70 @@ http://192.168.1.99:1881
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/7ca026ab-aa71-4c62-8145-10f74835743e" />
 
+## 1.3. Tạo file cấu hình môi trường
 
-## PHẦN 2. Thêm MariaDB để lưu giá trị nhiệt độ tức thời
+### 1.3.1. Tạo file ```.env``` 
 
-1. Tạo thư mục chứa file khởi tạo database
+```
+nano .env
+```
+
+### 1.3.2. Khai báo biến môi trường
+
+```
+MARIADB_ROOT_PASSWORD=root123
+MARIADB_DATABASE=monitor_db
+MARIADB_USER=monitor_user
+MARIADB_PASSWORD=monitor123
+
+INFLUXDB_USERNAME=admin
+INFLUXDB_PASSWORD=admin123456
+INFLUXDB_ORG=monitor-org
+INFLUXDB_BUCKET=weather-history
+INFLUXDB_TOKEN=monitor-secret-token-2026-tnut-realtime
+
+GRAFANA_ADMIN_USER=admin
+GRAFANA_ADMIN_PASSWORD=admin123
+
+TELEGRAM_BOT_TOKEN=8514316926:AAFXqgzgOC-yMNR08k-kOq8EKQof5Etf0QI
+TELEGRAM_CHAT_ID=-5269158210
+```
+
+Lưu file:
+
+- Ctrl + O
+- Enter
+- Ctrl + X
+
+<img width="1103" height="639" alt="image" src="https://github.com/user-attachments/assets/72f52ca3-ad43-4916-b92d-be6ac70aa2a1" />
+
+### 1.3.3. Tạo file .gitignore
+
+
+Chạy:
+
+```
+nano .gitignore
+```
+
+Dán nội dung:
+
+```
+.env
+backup/
+```
+
+<img width="1103" height="639" alt="image" src="https://github.com/user-attachments/assets/fd83c153-eaab-4c5f-b755-3e9cce43e623" />
+
+Lưu lại:
+
+- Ctrl + O
+- Enter
+- Ctrl + X
+
+## 1.4. Triển khai MariaDB
+
+### 1.4.1. Tạo thư mục chứa file khởi tạo database
 
 Tạo thư mục db:
 
@@ -147,7 +206,7 @@ ls
 
 <img width="1108" height="640" alt="image" src="https://github.com/user-attachments/assets/67c25ea3-9bb4-4a60-95c1-18d897586c53" />
 
-2. Tạo file SQL khởi tạo bảng
+## 1.4.2. Tạo file SQL khởi tạo bảng
 
 Chạy:
 
@@ -200,85 +259,18 @@ cat db/init.sql
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/d99454b4-191f-40b0-81fa-d60bfebff25e" />
 
-3. Tạo file .env để lưu cấu hình
+### 1.4.3. Khai báo service MariaDB
 
-
-Chạy:
-
-```
-nano .env
-```
-
-Dán nội dung:
-
-```
-MARIADB_ROOT_PASSWORD=root123
-MARIADB_DATABASE=monitor_db
-MARIADB_USER=monitor_user
-MARIADB_PASSWORD=monitor123
-```
-
-Lưu file:
-
-- Ctrl + O
-- Enter
-- Ctrl + X
-
-Kiểm tra:
-
-```
-cat .env
-```
-
-<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/1579af10-103e-422d-b7ce-6b472acb8523" />
-
-4. Tạo file .gitignore
-
-File .env chứa mật khẩu nên không được đẩy lên GitHub.
-
-Chạy:
-
-```
-nano .gitignore
-```
-
-Dán nội dung:
-
-```
-.env
-```
-
-<img width="1103" height="639" alt="image" src="https://github.com/user-attachments/assets/bc19d36e-769a-4e4d-b22c-53ec2103fa27" />
-
-Lưu lại:
-
-- Ctrl + O
-- Enter
-- Ctrl + X
-
-5. Sửa file docker-compose.yml
-
-Mở file:
+- Sửa file ```docker-compose.yml```
+- Mở file:
 
 ```
 nano docker-compose.yml
 ```
 
-Xóa nội dung cũ và thay bằng toàn bộ nội dung sau:
+Thêm nội dung sau:
 
 ```
-services:
-  nodered:
-    image: nodered/node-red:latest
-    container_name: monitor_nodered
-    restart: unless-stopped
-    ports:
-      - "1881:1880"
-    volumes:
-      - nodered_data:/data
-    networks:
-      - monitor_network
-
   mariadb:
     image: mariadb:11.4
     container_name: monitor_mariadb
@@ -292,14 +284,6 @@ services:
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
       - monitor_network
-
-volumes:
-  nodered_data:
-  mariadb_data:
-
-networks:
-  monitor_network:
-    driver: bridge
 ```
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c7f016ee-70c8-4ef4-a132-cbdb0fd8f5e4" />
@@ -310,7 +294,7 @@ Lưu file:
 - Enter
 - Ctrl + X
 
-6. Khởi động MariaDB
+### 1.4.4 Khởi động MariaDB
 
 Chạy:
 
@@ -327,35 +311,9 @@ docker compose ps
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/022b6aad-42e4-460c-b27f-acf95d07782e" />
 
 
-## PHẦN 4. Thêm InfluxDB để lưu dữ liệu lịch sử
+## 1.5. Triển khai InfluxDB
 
-Bước 1. Bổ sung cấu hình InfluxDB vào file .env
-
-Mở file:
-
-```
-nano .env
-
-```
-Bổ sung thêm các dòng InfluxDB bên dưới:
-
-```
-INFLUXDB_USERNAME=admin
-INFLUXDB_PASSWORD=admin123456
-INFLUXDB_ORG=monitor-org
-INFLUXDB_BUCKET=weather-history
-INFLUXDB_TOKEN=monitor-secret-token-2026-tnut-realtime
-```
-
-<img width="1103" height="639" alt="image" src="https://github.com/user-attachments/assets/ab7b5cd5-2cfb-4724-b8b8-d19a21b98a04" />
-
-Lưu file:
-
-- Ctrl + O
-- Enter
-- Ctrl + X
-
-Bước 2. Sửa file docker-compose.yml
+### 1.5.1. Khai báo service InfluxDB
 
 Mở file:
 
@@ -363,35 +321,9 @@ Mở file:
 nano docker-compose.yml
 ```
 
-Xóa nội dung cũ và thay bằng toàn bộ nội dung sau:
+Thêm nội dung sau:
 
 ```
-services:
-  nodered:
-    image: nodered/node-red:latest
-    container_name: monitor_nodered
-    restart: unless-stopped
-    ports:
-      - "1881:1880"
-    volumes:
-      - nodered_data:/data
-    networks:
-      - monitor_network
-
-  mariadb:
-    image: mariadb:11.4
-    container_name: monitor_mariadb
-    restart: unless-stopped
-    env_file:
-      - .env
-    ports:
-      - "3307:3306"
-    volumes:
-      - mariadb_data:/var/lib/mysql
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    networks:
-      - monitor_network
-
   influxdb:
     image: influxdb:2.8.0
     container_name: monitor_influxdb
@@ -410,16 +342,6 @@ services:
       - influxdb_config:/etc/influxdb2
     networks:
       - monitor_network
-
-volumes:
-  nodered_data:
-  mariadb_data:
-  influxdb_data:
-  influxdb_config:
-
-networks:
-  monitor_network:
-    driver: bridge
 ```
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c846c220-2d81-42c8-9f5f-a6357832b7dc" />
@@ -431,7 +353,7 @@ Lưu file:
 - Enter
 - Ctrl + X
 
-Bước 3. Chạy InfluxDB
+### 1.5.2. Khởi động InfluxDB
 
 Chạy:
 
@@ -453,17 +375,16 @@ Kết quả cần có ba container:
 - monitor_mariadb
 - monitor_influxdb
 
-Bước 4. Kiểm tra InfluxDB bằng trình duyệt
+### 1.5.2. Kiểm tra InfluxDB bằng trình duyệt
 
 Trên Windows, mở:
-
+```
 http://192.168.1.99:8086
-
+```
 Đăng nhập:
 
-Username: admin
-
-Password: admin123456
+- Username: ```admin```
+- Password: ```admin123456```
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/9523c50f-0c94-42ee-9c0d-c0c3c64efe67" />
 
