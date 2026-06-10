@@ -1873,12 +1873,11 @@ Ctrl + F5
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/5055850f-37bc-479c-a40c-c0809b928c91" />
 
-Tích hợp Telegram Bot
+# 4. Tích hợp Telegram Bot
 
-## PHẦN 14. Tạo Telegram Bot và lấy Chat ID của nhóm
+## 4.1. Tạo Telegram Bot
 
-1. Tạo Telegram Bot bằng BotFather
-
+### 4.1.1. Tạo bot
 Mở Telegram tìm tài khoản chính thức: ```@BotFather```
 
 Gửi lệnh:
@@ -1901,25 +1900,24 @@ tnut_weather_monitor_2026_bot
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/1ba41f14-7a24-4ff8-810e-5e3f5f4a87f5" />
 
-2. Tạo nhóm Telegram để nhận cảnh báo
+### 4.1.2. Tạo nhóm Telegram để nhận cảnh báo
 
-- Tạo một nhóm Telegram mới.
-
-- Tên nhóm có thể đặt: TNUT Weather Monitor Alert
+- Tên nhómt: TNUT Weather Monitor Alert
 
 - Thêm ít nhất một người khác vào nhóm. Khi cộng thêm bạn và bot, nhóm sẽ có các thành viên cần thiết để demo cảnh báo.
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c1f9f0d9-bcf3-4a87-9110-bc4ffac1ccd3" />
 
-3. Gửi một lệnh thử nghiệm trong nhóm
 
-Trong nhóm Telegram, gửi:
+### 4.1.3. Lấy Chat ID bằng Terminal Ubuntu
 
+- Gửi một lệnh thử nghiệm trong nhóm
+
+```
 /test
+```
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/cf1fbef1-7209-4c14-9f35-f079510378c1" />
-
-4. Lấy Chat ID bằng Terminal Ubuntu
 
 - Quay lại Terminal Ubuntu.
 
@@ -1937,7 +1935,7 @@ ID là:
 -5269158210
 ```
 
-5. Kiểm tra bot bằng lệnh gửi tin nhắn trực tiếp
+## 4.1.4. Kiểm tra bot bằng lệnh gửi tin nhắn trực tiếp
 
 Sau khi có Chat ID, chạy thử lệnh sau. Thay token và Chat ID bằng giá trị thật:
 
@@ -1953,38 +1951,9 @@ curl -X POST "https://api.telegram.org/bot8514316926:AAFXqgzgOC-yMNR08k-kOq8EKQo
 
 Nhóm Telegram nhận được tin nhắn: TEST: Bot cảnh báo thời tiết đã kết nối thành công. thì bot đã hoạt động đúng.
 
-6. Bổ sung cấu hình vào file .env
+## 4.2. Tích hợp Telegram Bot vào Node-RED
 
-Sau khi kiểm tra bot thành công, quay lại thư mục dự án:
-
-```
-cd ~/app-monitor-realtime
-```
-
-Mở file:
-
-```
-nano .env
-```
-
-Thêm hai dòng cuối:
-
-```
-TELEGRAM_BOT_TOKEN=TOKEN_THAT_CUA_BAN
-TELEGRAM_CHAT_ID=CHAT_ID_THAT_CUA_NHOM
-```
-
-<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/b5ecaa0a-4d6d-4c4b-8598-3ab13300b539" />
-
-Lưu file:
-
-- Ctrl + O
-- Enter
-- Ctrl + X
-
-## PHẦN 15. Tích hợp Telegram Bot vào Node-RED
-
-Bước 1. Cho container Node-RED đọc file .env
+### 4.2.1. Cho container Node-RED đọc file .env
 
 Mở Docker Compose:
 
@@ -2009,7 +1978,7 @@ Lưu file:
 - Enter
 - Ctrl + X
 
-Bước 2. Tạo lại riêng container Node-RED
+Tạo lại riêng container Node-RED
 
 Chạy:
 
@@ -2019,15 +1988,7 @@ docker compose up -d --force-recreate nodered
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/020a307e-d40c-45e6-b134-ac016443e619" />
 
-Bước 3. Thêm node Function kiểm tra cảnh báo
-
-- Tìm node: function
-
-- Kéo một node Function mới vào dưới các nhánh hiện có.
-
-- Nối: Chuyển JSON thành Object -> Function mới
-
-- Nhấp đúp node Function.
+### 4.2.2. Thêm node Function kiểm tra cảnh báo
 
 - Đặt tên: Kiểm tra cảnh báo Telegram
 
@@ -2126,33 +2087,22 @@ return msg;
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/fb3737e7-cd08-40fb-b710-99c4b4135947" />
 
 
-Bước 6. Thêm node HTTP Request gửi Telegram
+### 4.2.3. Thêm node HTTP Request gửi Telegram
 
-- Tìm node: http request
+Nối dây: Kiểm tra cảnh báo Telegram -> http request
 
-- Kéo vào bên phải node:
+Nhấp đúp node HTTP Request và cấu hình:
 
-- Kiểm tra cảnh báo Telegram
+- Name:	Gửi cảnh báo Telegram
+- Method:	```- set by msg.method -```
+- URL:	Để trống 
+- Return:	```a parsed JSON object```
 
-- Nối dây: Kiểm tra cảnh báo Telegram -> http request
-
-- Nhấp đúp node HTTP Request và cấu hình:
-
-Name:	Gửi cảnh báo Telegram
-
-Method:	- set by msg.method -
-
-URL:	Để trống 
-
-Return:	a parsed JSON object
-
-- Nhấn: Done
+Nhấn: Done
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/b7c2e4d5-436f-4b8d-8651-7365f15462e5" />
 
-Bước 7. Thêm node Function xác nhận gửi thành công
-
-- Kéo thêm một node: function
+### 4.2.4. Thêm node Function xác nhận gửi thành công
 
 - Nối: Gửi cảnh báo Telegram -> function
 
@@ -2187,11 +2137,7 @@ return msg;
 
 Nhấn: Done
 
-Bước 8. Thêm node Debug kiểm tra kết quả
-
-Tìm node: debug
-
-- Kéo vào bên phải node: Gửi cảnh báo Telegram
+### 4.2.5. Thêm node Debug kiểm tra kết quả
 
 - Nối dây: Gửi cảnh báo Telegram -> Xem kết quả Telegram
 
@@ -2205,14 +2151,10 @@ Output:	msg.payload
 
 - Nhấn: Deploy
 
-## PHẦN 16. Tạo node kiểm thử cảnh báo
+### 4.2.6. Tạo node kiểm thử cảnh báo
 
 
-Bước 1. Tạo node test ALERT HIGH
-
-Kéo một node: inject vào flow.
-
-Nhấp đúp và cấu hình:
+**Bước 1. Tạo node inject ```test ALERT HIGH```**
 
 - Name:	TEST ALERT HIGH 40°C
 msg.payload:	Chọn kiểu JSON
@@ -2232,9 +2174,7 @@ Nhấn: Done
 
 Nối: TEST ALERT HIGH 40°C -> Kiểm tra cảnh báo Telegram
 
-Bước 2. Tạo node reset về OK
-
-Kéo thêm một node Inject.
+**Bước 2. Tạo node Inject ```reset về OK```**
 
 Cấu hình:
 
@@ -2253,10 +2193,7 @@ Dán:
 ```
 Nối trực tiếp vào: Kiểm tra cảnh báo Telegram
 
-
-Bước 3. Tạo node test ALERT LOW
-
-Kéo thêm một node Inject.
+**Bước 3. Tạo node Inject ```test ALERT LOW```**
 
 Cấu hình:
 
@@ -2280,7 +2217,7 @@ Nhấn: Deploy
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/4a49dd3f-3f24-422b-8ac4-dc71a849e90e" />
 
-## PHẦN 17. Kiểm thử Telegram Alert
+### 4.2.7. Kiểm thử Telegram Alert
 
 Thực hiện theo thứ tự:
 
@@ -2295,10 +2232,8 @@ Thực hiện theo thứ tự:
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/8805e45a-c202-4fd6-8795-f89a297acaac" />
 
-
-## GIAI ĐOẠN A. Sao lưu và tạo bộ cài đặt offline
-
-Bước 1. Tạo thư mục lưu file sao lưu
+# 5. Đóng gói và khôi phục hệ thống offline
+## 5.1. Tạo thư mục backup
 
 Chạy:
 ```
@@ -2306,91 +2241,7 @@ mkdir -p backup
 ```
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/e160a804-24c0-47a1-a59f-905a8960b1c4" />
 
-Bước 2. Tạo file .env.example
-
-File .env thật đang chứa mật khẩu và token Telegram. Không đưa file đó lên GitHub.
-
-Tạo file mẫu:
-```
-nano .env.example
-```
-Dán nội dung:
-```
-MARIADB_ROOT_PASSWORD=YOUR_ROOT_PASSWORD
-MARIADB_DATABASE=monitor_db
-MARIADB_USER=monitor_user
-MARIADB_PASSWORD=YOUR_DATABASE_PASSWORD
-
-INFLUXDB_USERNAME=admin
-INFLUXDB_PASSWORD=YOUR_INFLUXDB_PASSWORD
-INFLUXDB_ORG=monitor-org
-INFLUXDB_BUCKET=weather-history
-INFLUXDB_TOKEN=YOUR_INFLUXDB_TOKEN
-
-GRAFANA_ADMIN_USER=admin
-GRAFANA_ADMIN_PASSWORD=YOUR_GRAFANA_PASSWORD
-
-TELEGRAM_BOT_TOKEN=YOUR_TELEGRAM_BOT_TOKEN
-TELEGRAM_CHAT_ID=YOUR_TELEGRAM_CHAT_ID
-```
-
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/d113fd21-1bcb-4707-8c9d-3d1e48ff972e" />
-
-Lưu file:
-
-- Ctrl + O
-- Enter
-- Ctrl + X
-
-Bước 5. Tạo hoặc kiểm tra file .gitignore
-
-Chạy:
-```
-nano .gitignore
-```
-Bảo đảm file có tối thiểu các dòng:
-```
-.env
-backup/
-```
-<img width="1103" height="639" alt="image" src="https://github.com/user-attachments/assets/2ff773d4-e9c6-4c86-9501-8099dbe58a67" />
-
-Ý nghĩa:
-- .env	Không đẩy mật khẩu và token thật lên GitHub
-- backup/	Không đẩy file image .tar dung lượng lớn lên GitHub
-
-Lưu:
-
-- Ctrl + O
-- Enter
-- Ctrl + X
-
-Bước 6. Xuất flow Node-RED
-
-Flow Node-RED hiện đang lưu trong Docker volume. Để dễ khôi phục và đưa lên GitHub, nên xuất thêm file JSON.
-
-Mở Node-RED:
-
-http://192.168.1.99:1881
-
-Thực hiện:
-
-☰ → Expor → Current flow → formatted → Download
-
-<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/2e4ea97d-059c-4af0-90b2-f9f12fe9c86d" />
-
-<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/12c2d8f0-4f23-4a5d-b1b4-eb237b2d63f1" />
-
-Lưu file với tên:
-```
-flows_app_monitor.json
-```
-Trên Ubuntu, tạo thư mục để sau này đưa file vào repo:
-```
-mkdir -p node-red
-```
-
-Bước 7. Sao lưu source code
+## 5.2. Sao lưu source code
 
 Chạy:
 ```
@@ -2411,7 +2262,9 @@ ls -lh backup
 
 Thấy: ```app-monitor-source.tar.gz```
 
-Bước 8. Xem chính xác tên các Docker image
+## 5.3. Xuất Docker image
+  
+**Xem chính xác tên các Docker image**
 
 Chạy:
 ```
@@ -2419,7 +2272,7 @@ docker compose images
 ```
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/2a1ba935-8285-46d3-a03b-3b4da1a88479" />
 
-Bước 9. Xuất toàn bộ image ra file .tar
+**Xuất toàn bộ image ra file .tar**
 
 chạy:
 ```
@@ -2445,81 +2298,14 @@ app-monitor-images.tar
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/a8d9d5dc-9af8-45f9-b3ce-cd450bdfd614" />
 
-## GIAI ĐOẠN B. Sao lưu volume trước khi xóa container
-
-Bước 10. Kiểm tra các volume của dự án
-
-Chạy:
-```
-docker volume ls | grep app-monitor-realtime
-```
-
-<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/ee156c34-2323-4858-8698-b941a30fd18f" />
-
-Bước 11. Sao lưu từng volume
-
-Chạy lần lượt:
-```
-docker run --rm \
-  -v app-monitor-realtime_nodered_data:/data \
-  -v "$(pwd)/backup":/backup \
-  alpine \
-  tar -czf /backup/nodered_data.tar.gz -C /data .
-```
-```
-docker run --rm \
-  -v app-monitor-realtime_mariadb_data:/data \
-  -v "$(pwd)/backup":/backup \
-  alpine \
-  tar -czf /backup/mariadb_data.tar.gz -C /data .
-```
-```
-docker run --rm \
-  -v app-monitor-realtime_influxdb_data:/data \
-  -v "$(pwd)/backup":/backup \
-  alpine \
-  tar -czf /backup/influxdb_data.tar.gz -C /data .
-```
-```
-docker run --rm \
-  -v app-monitor-realtime_influxdb_config:/data \
-  -v "$(pwd)/backup":/backup \
-  alpine \
-  tar -czf /backup/influxdb_config.tar.gz -C /data .
-```
-```
-docker run --rm \
-  -v app-monitor-realtime_grafana_data:/data \
-  -v "$(pwd)/backup":/backup \
-  alpine \
-  tar -czf /backup/grafana_data.tar.gz -C /data .
-```
-
-<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/7ce1bea4-4158-419f-92b0-1943e2aa8397" />
-
-Kiểm tra:
-```
-ls -lh backup
-```
-Cần thấy thêm:
-
-nodered_data.tar.gz
-mariadb_data.tar.gz
-influxdb_data.tar.gz
-influxdb_config.tar.gz
-grafana_data.tar.gz
-
-<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/e2e5a0c2-7ef3-4702-8579-7b8613d598df" />
-
-## GIAI ĐOẠN D. Xóa các container của dự án
-Bước 1. Xóa container và network của riêng dự án
+## 5.4. Xóa container 
 
 Chạy:
 ```
 docker compose down
 ```
 
-Bước 2. Kiểm tra kết quả
+**Kiểm tra kết quả**
 
 Chạy:
 ```
@@ -2527,15 +2313,15 @@ docker compose ps
 ```
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/3940718c-871a-41e9-ac8d-8a6d23e239f0" />
 
-
-Kiểm tra volume vẫn còn:
+**Kiểm tra volume vẫn còn:**
 ```
 docker volume ls | grep app-monitor-realtime
 ```
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/36b8f394-8883-41f0-b637-e24f99d2225d" />
 
-## GIAI ĐOẠN E. Nạp lại Docker image từ file nén
-Bước 1. Load image
+## 5.5. Nạp lại Docker image từ file nén
+
+### 5.5.1. Load image
 
 Chạy:
 ```
@@ -2546,7 +2332,7 @@ Lệnh có thể mất một vài phút.
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/0b9b8b72-0880-4327-bd13-025534ef96ca" />
 
 
-Bước 2. Kiểm tra danh sách image
+### 5.5.2. Kiểm tra danh sách image
 
 Chạy:
 ```
@@ -2554,8 +2340,9 @@ docker image ls
 ```
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/4f1fcd7a-cb42-44d4-9bb5-2b0d51d213cc" />
 
-## GIAI ĐOẠN F. Khôi phục container bằng Docker Compose
-Bước 1. Khởi động lại toàn bộ ứng dụng
+## 5.6. Khôi phục container bằng Docker Compose
+
+### 5.6.1. Khởi động lại toàn bộ ứng dụng
 
 Chạy:
 ```
@@ -2565,9 +2352,8 @@ Docker Compose sẽ dùng file: ```docker-compose.yml``` để tạo lại sáu 
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/0c8a45cc-2dbf-467c-a096-0de55b0c0bf1" />
 
-Bước 2. Kiểm tra container
+### 5.6.2. Kiểm tra container
 
-Chờ khoảng 15–30 giây rồi chạy:
 ```
 docker compose ps
 ```
@@ -2584,42 +2370,27 @@ Trạng thái cần là: Up
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/c02ce3e8-9ec0-4e65-8a24-217939df08ab" />
 
-## GIAI ĐOẠN G. Kiểm tra hệ thống sau khôi phục
-1. Kiểm tra API Flask
+## 8.7. Kiểm tra hệ thống sau khôi phục
 
-Chạy:
+### 8.7.1. Kiểm tra API Flask
+
 ```
 curl http://localhost:5001/health
 ```
 
-Kết quả:
-
-{"service":"monitor_api","status":"ok"}
-
-Tiếp tục:
 ```
 curl http://localhost:5001/api/latest
 ```
-Kết quả gần giống:
 
-{
-  "city": "Thai Nguyen",
-  "id": 1,
-  "observed_at": "2026-06-10 09:45:00",
-  "status": "OK",
-  "temperature": 25.0
-}
-2. Kiểm tra Nginx reverse proxy
+### 8.7.2. Kiểm tra Nginx reverse proxy
 
-Chạy:
 ```
 curl http://localhost:8082/api/latest
 ```
-Kết quả cần giống API Flask.
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/c2bfd5a3-b100-4ee4-9b11-85bdc11e1687" />
 
-3. Kiểm tra website
+### 8.7.3. Kiểm tra website
 
 Mở trình duyệt:
 ```
@@ -2627,7 +2398,7 @@ http://192.168.1.99:8082
 ```
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/52953933-8ab6-4171-b8d3-5efa0025b9c4" />
 
-4. Kiểm tra Node-RED
+### 8.7.4. Kiểm tra Node-RED
 
 Mở:
 ```
@@ -2635,26 +2406,22 @@ http://192.168.1.99:1881
 ```
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/6c36be70-ffa2-4d51-a262-2123e56e042b" />
 
-Flow cũ cần vẫn còn đầy đủ, vì volume:
+Flow cũ cần vẫn còn đầy đủ
 
-app-monitor-realtime_nodered_data
-
-không bị xóa.
-
-5. Kiểm tra Grafana
+### 8.7.5. Kiểm tra Grafana
 
 Mở:
 ```
 http://192.168.1.99:3000
 ```
-Dashboard:
+Dashboard -> Weather Monitor
 
-Weather Monitor
 
-vẫn cần tồn tại.
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/409b2758-b894-4287-afb2-41bbbd2e9ce2" />
 
-6. Kiểm tra lịch sử InfluxDB
+Weather Monitor vẫn cần tồn tại.
+
+### 8.7.6. Kiểm tra lịch sử InfluxDB
 
 Mở:
 
@@ -2662,25 +2429,21 @@ http://192.168.1.99:8086
 
 Vào:
 
-Data Explorer
-→ weather-history
-→ weather
-→ temperature
+Data Explorer → weather-history → weather → temperature
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/d1bfaf28-9119-4d59-9af4-00cb53634956" />
 
-
 Biểu đồ lịch sử cũ vẫn cần hiển thị.
 
-7. Kiểm thử Telegram
+### 8.7.7. Kiểm thử Telegram
 
 Trong Node-RED, bấm:
 
-TEST RESET OK 25°C
+```TEST RESET OK 25°C```
 
 sau đó:
 
-TEST ALERT HIGH 40°C
+```TEST ALERT HIGH 40°C```
 
 Nhóm Telegram cần nhận được cảnh báo mới.
 
