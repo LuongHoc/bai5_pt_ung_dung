@@ -388,9 +388,96 @@ http://192.168.1.99:8086
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/9523c50f-0c94-42ee-9c0d-c0c3c64efe67" />
 
-## PHẦN 5. Tạo flow Node-RED lấy nhiệt độ thực tế
+## 1.6. Triển khai Grafana
+### 1.6.1. Khai báo service Grafana
 
-1. Mở giao diện Node-RED
+Chạy:
+
+```
+nano docker-compose.yml
+```
+
+**Thêm service Grafana ngay dưới service influxdb:**
+
+```
+  grafana:
+    image: grafana/grafana:12.4
+    container_name: monitor_grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - monitor_network
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/2150de30-bf50-454c-898a-d6ab277f2f61" />
+
+**Khai báo volume Grafana**
+
+Ở cuối file, tìm phần:
+
+```
+volumes:
+```
+
+Thêm dòng:
+
+```
+  grafana_data:
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/890e1894-0e72-4e06-8d1c-bbe0465ebb51" />
+
+### 1.6.2. Khởi động Grafana
+
+Chạy:
+
+```
+docker compose up -d
+```
+
+Sau khi hoàn tất, kiểm tra:
+
+```
+docker compose ps
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/89db348e-bfed-4c31-a3d9-f313bee67aae" />
+
+Kết quả có bốn container:
+
+- monitor_nodered
+- monitor_mariadb
+- monitor_influxdb
+- monitor_grafana
+
+### 1.6.3. Truy cập giao diện Grafana
+
+Trên trình duyệt Windows, mở:
+
+```
+http://192.168.1.99:3000
+```
+
+Đăng nhập:
+
+- Username: admin
+- Password: admin123
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c6e8233b-358a-4d52-a32c-686fa7c8a6ec" />
+
+# 2. Xây dựng flow Node-RED
+
+## 2.1. Lấy dữ liệu từ Open-Meteo API
+
+Tạo flow Node-RED lấy nhiệt độ thực tế
+
+### 2.1.1. Mở giao diện Node-RED
 
 Trên trình duyệt Windows, mở:
 
@@ -400,15 +487,9 @@ http://192.168.1.99:1881
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/7ca026ab-aa71-4c62-8145-10f74835743e" />
 
-2. Thêm node inject
+### 2.1.2. Tạo node inject
 
-Tại cột node bên trái, tìm node: ```inject```
-
-Kéo node vào vùng làm việc ở giữa.
-
-Nhấp đúp vào node inject để cấu hình.
-
-Điền như sau:
+Cấu hình node ```inject``` như sau:
 
 - msg.payload = timestamp
 
@@ -418,24 +499,13 @@ Nhấp đúp vào node inject để cấu hình.
 
 - Chọn: interval
 
-Sau đó giao diện sẽ xuất hiện ô thời gian.
-
-Điền: 60 và chọn đơn vị: seconds
-
 - Nhấn Done
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/22b2520f-a29e-4994-9596-995f854c4cc1" />
 
-3. Thêm node http request
+### 2.1.3. Tạo node http request
 
-Tại ô tìm kiếm bên trái:
-
-Nhập: ```http request```
-
-Nhấp đúp vào node http request.
-
-Điền:
-
+Cấu hình node ```http request```:
 
 - Name:	Gọi API Open-Meteo
 - Method:	GET
@@ -448,23 +518,11 @@ https://api.open-meteo.com/v1/forecast?latitude=21.5942&longitude=105.8482&curre
 
 - Nhấn: Done
 
-Sau đó nối dây:
-
-inject --> http request
-
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/531000a9-583d-4ac1-bcb8-2e72e912e29a" />
 
-4. Thêm node JSON
+### 2.1.4. Tạo node JSON
 
-Tại ô tìm kiếm bên trái:
-
-Gõ: ```json```
-
-Kéo node json vào bên phải node HTTP request.
-
-Nhấp đúp node json.
-
-Điền:
+Cấu hình node ```json```:
 
 - Name:	Chuyển JSON thành Object
 - Action:	Always convert to JavaScript Object
@@ -474,29 +532,29 @@ Nhấn: Done
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/41fccf7a-8f89-4a39-a291-f56e020ae57a" />
 
+### 2.1.5. Tạo node Debug để kiểm tra dữ liệu API
 
-5. Tạo node Debug để kiểm tra dữ liệu API
-
-Tại thanh tìm kiếm node bên trái, nhập:
-
-```
-debug
-```
-
-Nhấp đúp vào node debug.
-
-Điền thông tin:
+Cấu hình node ```Debug```:
 
 - Name:	Xem dữ liệu API
 - Output:	msg.payload
 
 Nhấn: Done
 
-6. Chạy flow
+<img width="1920" height="1031" alt="image" src="https://github.com/user-attachments/assets/9adadfea-00f7-46de-b51b-7792b763f715" />
+
+### 2.1.6. Chạy flow
+
+Nối các node với nhau:
+```
+Inject → HTTP Request → JSON → Debug
+```
 
 Nhấn nút: ```Deploy```
 
-- Có thể bấm nút nhỏ bên trái node: Lấy nhiệt độ mỗi 60 giây để chạy thử thủ công.
+Có thể bấm nút nhỏ bên trái node: Lấy nhiệt độ mỗi 60 giây để chạy thử thủ công.
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/6ce3a118-4d77-4972-bbc6-c776d2a02b59" />
 
 **Kiểm tra kết quả**
 
@@ -513,8 +571,6 @@ msg.payload : Object
     current_units: object
     current: object
 ```
-
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/6ce3a118-4d77-4972-bbc6-c776d2a02b59" />
 
 ## PHẦN 6. Phân loại nhiệt độ và lưu giá trị mới nhất vào MariaDB
 
@@ -948,124 +1004,7 @@ Nhấn nút: ```SUBMIT```
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/aedeba0e-21d7-4d3d-ba5c-39cc6f802191" />
 
 
-### B. Thêm container Grafana
 
-Sau khi xác nhận InfluxDB có dữ liệu, quay lại Terminal Ubuntu.
-
-Bước 1. Kiểm tra cổng 3000
-
-kiểm tra máy Ubuntu đã có ứng dụng nào dùng cổng này chưa:
-
-```
-sudo ss -tulpn | grep :3000
-```
-
-<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/a0a9e36d-e680-4462-8c70-b5a034cca36e" />
-
-Bước 2. Bổ sung tài khoản Grafana vào .env
-
-Mở file:
-
-```
-nano .env
-```
-
-Giữ nguyên các dòng hiện tại và thêm hai dòng cuối:
-
-```
-GRAFANA_ADMIN_USER=admin
-GRAFANA_ADMIN_PASSWORD=admin123
-```
-
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/dfb9180a-e686-4ef0-adb1-03c729e74eb5" />
-
-Lưu:
-
-- Ctrl + O
-- Enter
-- Ctrl + X
-
-Bước 3. Mở file Docker Compose
-
-Chạy:
-
-```
-nano docker-compose.yml
-```
-
-Thêm service Grafana ngay dưới service influxdb:
-
-```
-  grafana:
-    image: grafana/grafana:12.4
-    container_name: monitor_grafana
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    environment:
-      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
-    volumes:
-      - grafana_data:/var/lib/grafana
-    networks:
-      - monitor_network
-```
-
-<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/2150de30-bf50-454c-898a-d6ab277f2f61" />
-
-Bước 4. Khai báo volume Grafana
-
-Ở cuối file, tìm phần:
-
-```
-volumes:
-```
-
-Thêm dòng:
-
-```
-  grafana_data:
-```
-
-<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/890e1894-0e72-4e06-8d1c-bbe0465ebb51" />
-
-Bước 5. Khởi động Grafana
-
-Chạy:
-
-```
-docker compose up -d
-```
-
-Sau khi hoàn tất, kiểm tra:
-
-```
-docker compose ps
-```
-
-<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/89db348e-bfed-4c31-a3d9-f313bee67aae" />
-
-Kết quả có bốn container:
-
-monitor_nodered
-monitor_mariadb
-monitor_influxdb
-monitor_grafana
-
-Bước 9. Truy cập Grafana
-
-Trên trình duyệt Windows, mở:
-
-```
-http://192.168.1.99:3000
-```
-
-Đăng nhập:
-
-- Username: admin
-- Password: admin123
-
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c6e8233b-358a-4d52-a32c-686fa7c8a6ec" />
 
 
 ## PHẦN 9. Kết nối Grafana với InfluxDB
