@@ -1310,9 +1310,9 @@ http://192.168.1.99:5001/api/latest
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/26691730-60e4-491e-ab48-22076052f19c" />
 
 
-## PHẦN 12. Tạo giao diện web và chạy bằng Nginx
+## 3.2. Tạo giao diện web và chạy bằng Nginx
 
-1. Tạo thư mục front-end
+### 3.2.1. Tạo thư mục front-end
 
 Tạo thư mục:
 
@@ -1320,7 +1320,7 @@ Tạo thư mục:
 mkdir -p frontend
 ```
 
-2. Tạo file HTML
+### 3.2.2. Tạo file HTML
 
 Chạy:
 
@@ -1432,7 +1432,7 @@ Lưu file:
 - Enter
 - Ctrl + X
 
-3. Tạo file CSS
+### 3.2.3. Tạo file CSS
 
 Chạy:
 
@@ -1569,7 +1569,7 @@ Lưu:
 - Enter
 - Ctrl + X
 
-4. Tạo file JavaScript
+### 3.2.4. Tạo file JavaScript
 
 Chạy:
 
@@ -1638,7 +1638,7 @@ Lưu:
 - Enter
 - Ctrl + X
 
-5. Tạo file cấu hình Nginx
+### 3.2.5. Tạo file cấu hình Nginx
 
 Chạy:
 
@@ -1680,24 +1680,7 @@ Lưu:
 - Enter
 - Ctrl + X
 
-6. Kiểm tra các file front-end
-
-Chạy:
-
-```
-find frontend -maxdepth 1 -type f -print
-```
-
-<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/ca0fd15e-29a7-40b1-acc1-2ed94d6f52c6" />
-
-Kết quả:
-
-- frontend/index.html
-- frontend/style.css
-- frontend/app.js
-- frontend/nginx.conf
-
-7. Thêm service Nginx vào Docker Compose
+### 3.2.7. Khai báo service Nginx
 
 Mở file:
 
@@ -1732,7 +1715,7 @@ Lưu:
 - Enter
 - Ctrl + X
 
-8. Chạy container Nginx
+### 3.2.7. Chạy container Nginx
 
 Chạy:
 
@@ -1752,7 +1735,7 @@ Kết quả:
 
 Container mới cần có cổng: 0.0.0.0:8082->80/tcp
 
-9. Kiểm tra reverse proxy bằng Terminal
+### 3.2.8. Kiểm tra reverse proxy bằng Terminal
 
 Chạy:
 
@@ -1772,7 +1755,7 @@ Kết quả:
   "temperature": 25.4
 }
 
-15. Mở giao diện web
+**Mở giao diện web**
 
 Trên trình duyệt Windows, mở:
 
