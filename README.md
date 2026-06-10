@@ -910,13 +910,18 @@ InfluxDB sẽ hiển thị biểu đồ nhiệt độ theo thời gian.
 
 
 # 3. Trực quan hóa dữ liệu bằng Grafana
-1. Mở phần Data Sources
+
+## 3.1. Kết nối Grafana với InfluxDB
+
+### 3.1.1. Thêm Data Source
+
+**B1. Mở phần Data Sources**
 
 - Trong giao diện Grafana, nhìn menu bên trái và chọn: ```Connections```
 
 - Sau đó chọn: ```Data sources```
 
-2. Thêm data source mới
+**B2. Thêm data source mới**
 
 - Nhấn: ```Add new data source```
 
@@ -926,32 +931,11 @@ InfluxDB sẽ hiển thị biểu đồ nhiệt độ theo thời gian.
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/35a78801-3660-4b73-be0b-a78dbaa432e6" />
 
-3. Điền tên data source
+### 3.1.2. Cấu hình kết nối
 
-Tại ô ```Name```
-
-nhập: ```InfluxDB Weather```
-
-4. Chọn ngôn ngữ truy vấn Flux
-
-Tìm mục: ```Query language```
-
-Chọn: ```Flux```
-
-5. Điền địa chỉ kết nối
-
-Tại phần: HTTP
-
-Tìm ô: URL
-
-Nhập: ```http://influxdb:8086```
-
-6. Điền thông tin xác thực InfluxDB
-
-Cuộn xuống phần: ```InfluxDB Details```
-
-Điền chính xác:
-
+- Name: ```InfluxDB Weather```
+- Query language: ```Flux```
+- URL: ```http://influxdb:8086```
 - Organization:	monitor-org
 - Token:	monitor-secret-token-2026-tnut-realtime
 - Default Bucket:	weather-history
@@ -960,34 +944,26 @@ Cuộn xuống phần: ```InfluxDB Details```
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/2e625ff1-e767-4b7c-a53c-cc31a61059b7" />
 
-7. Lưu và kiểm tra kết nối
+### 3.1.3. Lưu và kiểm tra kết nối
 
 Cuộn xuống cuối trang, nhấn: ```Save & test```
 
 
-## PHẦN 10. Tạo Dashboard và biểu đồ nhiệt độ trong Grafana
+## 3.2. Tạo Dashboard
 
-1. Mở trang tạo Dashboard
+### 3.2.1. Tạo Dashboard mới
 
  Trong menu: Dashboard → New → New dashboard → Add visualization
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/5b467f92-4bad-4199-8c1c-657ba6747960" />
 
-2. Chọn nguồn dữ liệu
+### 3.2.2. Chọn Data Source
 
-Khi cửa sổ chọn data source xuất hiện, nhấn:
+Khi cửa sổ chọn data source xuất hiện, nhấn: ```InfluxDB Weather```
 
-InfluxDB Weather
+### 3.2.3. Nhập truy vấn Flux
 
-Đây là data source bạn vừa cấu hình.
-
-Sau khi chọn, Grafana mở trang chỉnh sửa panel.
-
-3. Nhập truy vấn Flux
-
-Vì data source được cấu hình với ngôn ngữ:
-
-Flux
+Vì data source được cấu hình với ngôn ngữ: Flux
 
 Grafana sẽ hiển thị vùng nhập code truy vấn. Với Flux, Grafana sử dụng code editor thay vì trình kéo thả trực quan.
 
@@ -1003,47 +979,31 @@ from(bucket: "weather-history")
   |> yield(name: "mean")
 ```
 
-4. Kiểm tra biểu đồ
+### 2.3.4. Kiểm tra biểu đồ
 
 - Sau khi dán truy vấn, Grafana thường tự chạy truy vấn. Nếu chưa thấy biểu đồ, nhấn: ```Refresh```
 
 - Thấy đường biểu diễn nhiệt độ tương tự biểu đồ đã xuất hiện trong InfluxDB Data Explorer.
 
-5. Chọn kiểu biểu đồ
+### 2.3.5. Cấu hình Panel
 
-- Ở phần bên phải
-
-- Chọn: ```Time series```
+- Ở phần bên phải Chọn: ```Time series```
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/002ba798-4ad2-4c0f-a5d1-4f0b5444268b" />
 
 Kiểu Time series phù hợp để biểu diễn nhiệt độ thay đổi theo thời gian.
 
-6. Đặt tên biểu đồ
+**Đặt tên biểu đồ** : Ở bảng cấu hình bên phải --> tìm: ```Panel options``` --> Tại ô: ```Title``` --> Nhập: Lịch sử nhiệt độ Thái Nguyên
 
-- Ở bảng cấu hình bên phải, tìm: ```Panel options```
-
-- Tại ô: ```Title```
-
-- Nhập: Lịch sử nhiệt độ Thái Nguyên
-
-7. Chọn đơn vị nhiệt độ
-
-- Tìm mục: Standard options
-- Tại ô: Unit
-- Tìm: Celsius
-- Chọn: Temperature → Celsius (°C)
+**Chọn đơn vị nhiệt độ** :  Tìm mục: Standard options -> Tại ô: Unit -> Tìm: Celsius -> Chọn: Temperature → Celsius (°C)
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/58134bb1-1dfd-4bbf-90d6-33e74f31ed40" />
 
+### 2.3.6. Lưu Dashboard
 
-8. Lưu Dashboard
-
-- Nhấn biểu tượng lưu:
 - Save dashboard
 - Nhập tên Dashboard: Weather Monitor
 - Nhấn: Save
-
 
 ## PHẦN 11. Tạo Flask API đọc dữ liệu từ MariaDB
 
