@@ -360,15 +360,7 @@ Khi muốn triển khai ứng dụng lên máy chủ không có internet, cần 
 ## Phần 1. Triển khai hệ thống
 ### 1.1. Chuẩn bị môi trường
 
-**Bước 1. Mở máy ảo Ubuntu**
-
-Tại PowerShell trên Windows, SSH vào máy ảo:
-
-```
-ssh hoc@192.168.1.99
-```
-
-**Bước 2. Kiểm tra Docker**
+#### 1.1.1. Kiểm tra Docker 
 
 Chạy:
 
@@ -384,7 +376,7 @@ sudo docker compose version
 
 <img width="1105" height="644" alt="image" src="https://github.com/user-attachments/assets/ace7eb06-42c5-4e18-a59d-636d04fe5d99" />
 
-**Bước 3. Tạo thư mục dự án**
+#### 1.1.2. Tạo thư mục dự án
 
 Chạy:
 
@@ -406,15 +398,17 @@ pwd
 
 <img width="1109" height="642" alt="image" src="https://github.com/user-attachments/assets/4b868467-6db3-465d-be6c-b899081f507f" />
 
-**Bước 4. Tạo file docker-compose.yml**
+### 1.2. Triển khai Node-RED
+
+#### 1.2.1. Khai báo service Node-RED
+
+Tạo file ```docker-compose.yml```
 
 Chạy:
 
 ```
 nano docker-compose.yml
 ```
-
-<img width="1106" height="644" alt="image" src="https://github.com/user-attachments/assets/fd476a3b-af9d-44f9-ae7d-237e8d53fe66" />
 
 Dán nội dung sau:
 
@@ -441,7 +435,9 @@ networks:
 
 <img width="1103" height="639" alt="image" src="https://github.com/user-attachments/assets/7567348a-beb0-47a6-87f8-421ac5e875e1" />
 
-**Bước 5. Chạy container Node-RED**
+### 1.2.2. Khởi động Node-RED
+
+**Bước 1: Chạy container Node-RED**
 
 Chạy:
 
@@ -451,7 +447,7 @@ docker compose up -d
 
 <img width="1104" height="641" alt="image" src="https://github.com/user-attachments/assets/fd4e9272-7c17-41f9-a336-d70583ef3cc8" />
 
-**Bước 6. Kiểm tra container mới**
+**Bước 2. Kiểm tra container mới**
 
 Chạy:
 
@@ -462,7 +458,7 @@ docker compose ps
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/48586b10-ecd6-4b48-aa6f-4eb4a605191f" />
 
 
-**Bước 7. Xem log Node-RED**
+**Bước 3. Xem log Node-RED**
 
 Chạy:
 
@@ -472,7 +468,7 @@ docker logs monitor_nodered --tail 30
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/fd45779d-44a4-43b5-bf30-de16967612e1" />
 
-**Bước 8. Mở Node-RED từ trình duyệt Windows**
+**Bước 4. Mở Node-RED từ trình duyệt Windows**
 
 Trên Windows, mở trình duyệt và nhập:
 
@@ -483,7 +479,7 @@ http://192.168.1.99:1881
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/cb8803fd-8ee8-495b-a3b7-33a0bf994da6" />
 
 
-## PHẦN 3. Thêm MariaDB để lưu giá trị nhiệt độ tức thời
+## PHẦN 2. Thêm MariaDB để lưu giá trị nhiệt độ tức thời
 
 1. Tạo thư mục chứa file khởi tạo database
 
