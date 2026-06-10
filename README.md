@@ -1005,9 +1005,13 @@ Kiểu Time series phù hợp để biểu diễn nhiệt độ thay đổi theo
 - Nhập tên Dashboard: Weather Monitor
 - Nhấn: Save
 
+# 3. Xây dựng Flask API và website Nginx
+
+## 3.1. Xây dựng Flask API
+
 ## PHẦN 11. Tạo Flask API đọc dữ liệu từ MariaDB
 
-1. Tạo thư mục Flask API
+### 3.1.1. Tạo thư mục API
 
 Tạo thư mục:
 
@@ -1023,7 +1027,7 @@ ls
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/a369608e-9665-48cb-9aa5-0259978992e5" />
 
-2. Tạo file thư viện Python
+### 3.1.2. Tạo file thư viện Python
 
 Chạy:
 
@@ -1046,7 +1050,7 @@ Lưu file:
 - Enter
 - Ctrl + X
 
-3. Tạo chương trình Flask API
+### 3.1.3. Tạo chương trình Flask API
 
 Chạy:
 
@@ -1147,7 +1151,7 @@ Lưu file:
 - Enter
 - Ctrl + X
 
-4. Tạo Dockerfile cho Flask API
+### 3.1.4. Tạo Dockerfile cho Flask API
 
 Dockerfile mô tả các bước tạo image từ source code.
 
@@ -1183,7 +1187,7 @@ Lưu file:
 - Enter
 - Ctrl + X
 
-5. Bổ sung service API vào Docker Compose
+### 3.1.5. Bổ sung service API vào Docker Compose
 
 Mở file:
 
@@ -1221,7 +1225,7 @@ Lưu file:
 - Enter
 - Ctrl + X
 
-6. Build và chạy Flask API
+### 3.1.6. Build và chạy Flask API
 
 Chạy:
 
@@ -1229,7 +1233,7 @@ Chạy:
 docker compose up -d --build api
 ```
 
-7. Kiểm tra trạng thái container
+### 3.1.7. Kiểm tra trạng thái container
 
 Chạy:
 
@@ -1248,7 +1252,7 @@ Kết quả cần có năm container:
 
 Container API phải có trạng thái: Up và cổng: 0.0.0.0:5001->5000/tcp
 
-8. Xem log Flask API
+**Xem log Flask API**
 
 Chạy:
 
@@ -1263,7 +1267,7 @@ Kết quả:
 - Running on all addresses (0.0.0.0)
 - Running on http://127.0.0.1:5000
 
-9. Kiểm tra route /health
+**Kiểm tra route /health**
 
 Chạy trên Terminal Ubuntu:
 
@@ -1277,7 +1281,7 @@ Kết quả:
 
 {"service":"monitor_api","status":"ok"}
 
-10. Kiểm tra route /api/latest
+**Kiểm tra route /api/latest**
 
 Chạy:
 
