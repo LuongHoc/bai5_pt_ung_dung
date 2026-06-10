@@ -3216,28 +3216,196 @@ grafana_data.tar.gz
 
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/e2e5a0c2-7ef3-4702-8579-7b8613d598df" />
 
+## GIAI ĐOẠN D. Xóa các container của dự án
+Bước 1. Xóa container và network của riêng dự án
 
-DỪNG LẠI TRƯỚC KHI XÓA CONTAINER
-
-Tại thời điểm này, chưa chạy:
-
+Chạy:
+```
 docker compose down
+```
 
-và tuyệt đối chưa chạy:
+Bước 2. Kiểm tra kết quả
 
-docker compose down -v
+Chạy:
+```
+docker compose ps
+```
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/3940718c-871a-41e9-ac8d-8a6d23e239f0" />
 
-Hãy gửi ảnh kết quả của ba lệnh sau:
 
-docker compose images
+Kiểm tra volume vẫn còn:
+```
 docker volume ls | grep app-monitor-realtime
-ls -lh backup
+```
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/36b8f394-8883-41f0-b637-e24f99d2225d" />
 
-Sau khi kiểm tra đủ file sao lưu, bước tiếp theo sẽ là:
+## GIAI ĐOẠN E. Nạp lại Docker image từ file nén
+Bước 1. Load image
 
-GIAI ĐOẠN C. Xóa sáu container của dự án
-GIAI ĐOẠN D. Load image từ file app-monitor-images.tar
-GIAI ĐOẠN E. Khởi động lại và kiểm tra website, API, Grafana, Node-RED
+Chạy:
+```
+docker image load -i backup/app-monitor-images.tar
+```
+Lệnh có thể mất một vài phút.
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/0b9b8b72-0880-4327-bd13-025534ef96ca" />
+
+
+Bước 2. Kiểm tra danh sách image
+
+Chạy:
+```
+docker image ls
+```
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/4f1fcd7a-cb42-44d4-9bb5-2b0d51d213cc" />
+
+## GIAI ĐOẠN F. Khôi phục container bằng Docker Compose
+Bước 1. Khởi động lại toàn bộ ứng dụng
+
+Chạy:
+```
+docker compose up -d
+```
+Docker Compose sẽ dùng file: ```docker-compose.yml``` để tạo lại sáu container.
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/0c8a45cc-2dbf-467c-a096-0de55b0c0bf1" />
+
+Bước 2. Kiểm tra container
+
+Chờ khoảng 15–30 giây rồi chạy:
+```
+docker compose ps
+```
+Kết quả cần có:
+
+- monitor_api
+- monitor_grafana
+- monitor_influxdb
+- monitor_mariadb
+- monitor_nginx
+- monitor_nodered
+
+Trạng thái cần là: Up
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/c02ce3e8-9ec0-4e65-8a24-217939df08ab" />
+
+## GIAI ĐOẠN G. Kiểm tra hệ thống sau khôi phục
+1. Kiểm tra API Flask
+
+Chạy:
+```
+curl http://localhost:5001/health
+```
+
+Kết quả:
+
+{"service":"monitor_api","status":"ok"}
+
+Tiếp tục:
+```
+curl http://localhost:5001/api/latest
+```
+Kết quả gần giống:
+
+{
+  "city": "Thai Nguyen",
+  "id": 1,
+  "observed_at": "2026-06-10 09:45:00",
+  "status": "OK",
+  "temperature": 25.0
+}
+2. Kiểm tra Nginx reverse proxy
+
+Chạy:
+```
+curl http://localhost:8082/api/latest
+```
+Kết quả cần giống API Flask.
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/c2bfd5a3-b100-4ee4-9b11-85bdc11e1687" />
+
+3. Kiểm tra website
+
+Mở trình duyệt:
+```
+http://192.168.1.99:8082
+```
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/52953933-8ab6-4171-b8d3-5efa0025b9c4" />
+
+4. Kiểm tra Node-RED
+
+Mở:
+```
+http://192.168.1.99:1881
+```
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/6c36be70-ffa2-4d51-a262-2123e56e042b" />
+
+Flow cũ cần vẫn còn đầy đủ, vì volume:
+
+app-monitor-realtime_nodered_data
+
+không bị xóa.
+
+5. Kiểm tra Grafana
+
+Mở:
+```
+http://192.168.1.99:3000
+```
+Dashboard:
+
+Weather Monitor
+
+vẫn cần tồn tại.
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/409b2758-b894-4287-afb2-41bbbd2e9ce2" />
+
+6. Kiểm tra lịch sử InfluxDB
+
+Mở:
+
+http://192.168.1.99:8086
+
+Vào:
+
+Data Explorer
+→ weather-history
+→ weather
+→ temperature
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/d1bfaf28-9119-4d59-9af4-00cb53634956" />
+
+
+Biểu đồ lịch sử cũ vẫn cần hiển thị.
+
+7. Kiểm thử Telegram
+
+Trong Node-RED, bấm:
+
+TEST RESET OK 25°C
+
+sau đó:
+
+TEST ALERT HIGH 40°C
+
+Nhóm Telegram cần nhận được cảnh báo mới.
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/a72ccf90-0aa7-43d9-96c6-a8fb307f141e" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
