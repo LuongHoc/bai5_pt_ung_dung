@@ -3001,7 +3001,243 @@ Thực hiện theo thứ tự:
 <img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/8805e45a-c202-4fd6-8795-f89a297acaac" />
 
 
+## GIAI ĐOẠN A. Sao lưu và tạo bộ cài đặt offline
 
+Bước 1. Tạo thư mục lưu file sao lưu
+
+Chạy:
+```
+mkdir -p backup
+```
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/e160a804-24c0-47a1-a59f-905a8960b1c4" />
+
+Bước 2. Tạo file .env.example
+
+File .env thật đang chứa mật khẩu và token Telegram. Không đưa file đó lên GitHub.
+
+Tạo file mẫu:
+```
+nano .env.example
+```
+Dán nội dung:
+```
+MARIADB_ROOT_PASSWORD=YOUR_ROOT_PASSWORD
+MARIADB_DATABASE=monitor_db
+MARIADB_USER=monitor_user
+MARIADB_PASSWORD=YOUR_DATABASE_PASSWORD
+
+INFLUXDB_USERNAME=admin
+INFLUXDB_PASSWORD=YOUR_INFLUXDB_PASSWORD
+INFLUXDB_ORG=monitor-org
+INFLUXDB_BUCKET=weather-history
+INFLUXDB_TOKEN=YOUR_INFLUXDB_TOKEN
+
+GRAFANA_ADMIN_USER=admin
+GRAFANA_ADMIN_PASSWORD=YOUR_GRAFANA_PASSWORD
+
+TELEGRAM_BOT_TOKEN=YOUR_TELEGRAM_BOT_TOKEN
+TELEGRAM_CHAT_ID=YOUR_TELEGRAM_CHAT_ID
+```
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/d113fd21-1bcb-4707-8c9d-3d1e48ff972e" />
+
+Lưu file:
+
+- Ctrl + O
+- Enter
+- Ctrl + X
+
+Bước 5. Tạo hoặc kiểm tra file .gitignore
+
+Chạy:
+```
+nano .gitignore
+```
+Bảo đảm file có tối thiểu các dòng:
+```
+.env
+backup/
+```
+<img width="1103" height="639" alt="image" src="https://github.com/user-attachments/assets/2ff773d4-e9c6-4c86-9501-8099dbe58a67" />
+
+Ý nghĩa:
+- .env	Không đẩy mật khẩu và token thật lên GitHub
+- backup/	Không đẩy file image .tar dung lượng lớn lên GitHub
+
+Lưu:
+
+- Ctrl + O
+- Enter
+- Ctrl + X
+
+Bước 6. Xuất flow Node-RED
+
+Flow Node-RED hiện đang lưu trong Docker volume. Để dễ khôi phục và đưa lên GitHub, nên xuất thêm file JSON.
+
+Mở Node-RED:
+
+http://192.168.1.99:1881
+
+Thực hiện:
+
+☰ → Expor → Current flow → formatted → Download
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/2e4ea97d-059c-4af0-90b2-f9f12fe9c86d" />
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/12c2d8f0-4f23-4a5d-b1b4-eb237b2d63f1" />
+
+Lưu file với tên:
+```
+flows_app_monitor.json
+```
+Trên Ubuntu, tạo thư mục để sau này đưa file vào repo:
+```
+mkdir -p node-red
+```
+
+Bước 7. Sao lưu source code
+
+Chạy:
+```
+tar \
+  --exclude='./.env' \
+  --exclude='./backup' \
+  -czf backup/app-monitor-source.tar.gz \
+  .
+```
+Lệnh này nén source code dự án nhưng không đưa file .env thật vào gói nén.
+
+Kiểm tra:
+```
+ls -lh backup
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/01586abb-a0cb-46cf-ade5-434eb634c0d6" />
+
+Thấy: ```app-monitor-source.tar.gz```
+
+Bước 8. Xem chính xác tên các Docker image
+
+Chạy:
+```
+docker compose images
+```
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/2a1ba935-8285-46d3-a03b-3b4da1a88479" />
+
+Bước 9. Xuất toàn bộ image ra file .tar
+
+chạy:
+```
+docker image save \
+  -o backup/app-monitor-images.tar \
+  nodered/node-red:latest \
+  mariadb:11.4 \
+  influxdb:2.8.0 \
+  grafana/grafana:12.4 \
+  nginx:alpine \
+  app-monitor-realtime-api:latest
+```
+Lệnh có thể chạy trong vài phút vì file khá lớn.
+
+Kiểm tra:
+```
+ls -lh backup
+
+Kết quả cần có hai file:
+```
+app-monitor-source.tar.gz
+app-monitor-images.tar
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/a8d9d5dc-9af8-45f9-b3ce-cd450bdfd614" />
+
+## GIAI ĐOẠN B. Sao lưu volume trước khi xóa container
+
+Bước 10. Kiểm tra các volume của dự án
+
+Chạy:
+```
+docker volume ls | grep app-monitor-realtime
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/ee156c34-2323-4858-8698-b941a30fd18f" />
+
+Bước 11. Sao lưu từng volume
+
+Chạy lần lượt:
+```
+docker run --rm \
+  -v app-monitor-realtime_nodered_data:/data \
+  -v "$(pwd)/backup":/backup \
+  alpine \
+  tar -czf /backup/nodered_data.tar.gz -C /data .
+```
+```
+docker run --rm \
+  -v app-monitor-realtime_mariadb_data:/data \
+  -v "$(pwd)/backup":/backup \
+  alpine \
+  tar -czf /backup/mariadb_data.tar.gz -C /data .
+```
+```
+docker run --rm \
+  -v app-monitor-realtime_influxdb_data:/data \
+  -v "$(pwd)/backup":/backup \
+  alpine \
+  tar -czf /backup/influxdb_data.tar.gz -C /data .
+```
+```
+docker run --rm \
+  -v app-monitor-realtime_influxdb_config:/data \
+  -v "$(pwd)/backup":/backup \
+  alpine \
+  tar -czf /backup/influxdb_config.tar.gz -C /data .
+```
+```
+docker run --rm \
+  -v app-monitor-realtime_grafana_data:/data \
+  -v "$(pwd)/backup":/backup \
+  alpine \
+  tar -czf /backup/grafana_data.tar.gz -C /data .
+```
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/7ce1bea4-4158-419f-92b0-1943e2aa8397" />
+
+Kiểm tra:
+```
+ls -lh backup
+```
+Cần thấy thêm:
+
+nodered_data.tar.gz
+mariadb_data.tar.gz
+influxdb_data.tar.gz
+influxdb_config.tar.gz
+grafana_data.tar.gz
+
+<img width="1980" height="1080" alt="image" src="https://github.com/user-attachments/assets/e2e5a0c2-7ef3-4702-8579-7b8613d598df" />
+
+
+DỪNG LẠI TRƯỚC KHI XÓA CONTAINER
+
+Tại thời điểm này, chưa chạy:
+
+docker compose down
+
+và tuyệt đối chưa chạy:
+
+docker compose down -v
+
+Hãy gửi ảnh kết quả của ba lệnh sau:
+
+docker compose images
+docker volume ls | grep app-monitor-realtime
+ls -lh backup
+
+Sau khi kiểm tra đủ file sao lưu, bước tiếp theo sẽ là:
+
+GIAI ĐOẠN C. Xóa sáu container của dự án
+GIAI ĐOẠN D. Load image từ file app-monitor-images.tar
+GIAI ĐOẠN E. Khởi động lại và kiểm tra website, API, Grafana, Node-RED
 
 
 
