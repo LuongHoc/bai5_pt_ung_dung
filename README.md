@@ -357,9 +357,10 @@ Khi muốn triển khai ứng dụng lên máy chủ không có internet, cần 
 
 # B. Thực hành 
 
-## 
-**Bước 1. Mở máy ảo Ubuntu**
+## Phần 1. Triển khai hệ thống
+### 1.1. Chuẩn bị môi trường
 
+**Bước 1. Mở máy ảo Ubuntu**
 
 Tại PowerShell trên Windows, SSH vào máy ảo:
 
