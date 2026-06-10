@@ -355,8 +355,9 @@ Khi muốn triển khai ứng dụng lên máy chủ không có internet, cần 
 
 
 
-# B) Thực hành
+# B. Thực hành 
 
+## 
 **Bước 1. Mở máy ảo Ubuntu**
 
 
