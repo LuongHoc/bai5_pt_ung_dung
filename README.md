@@ -3,355 +3,169 @@
 # Môn: Phát triển ứng dụng với mã nguồn mở - tee0421
 # Bài tập 5:
 
+```
+- lý thuyết: 
+    + docker là gì? 
+    + các keyword được sử dụng trong docker-compose.yml
+      để mô tả 1 service, network, volume,...
+      liệt kê + ý nghĩa của từ khoá đó + ví dụ minh hoạ
+    + ưu điểm khi triển app sử dụng docker là gì?
+    + dùng docker: tạo app, test app OK trên laptop cá nhân
+      giờ muốn triển khai app này trên máy chủ thật ko có internet
+      thì các bước cần làm là?
+  - thực hành áp dụng: APP MONITOR + ALERT DATA REALTIME
+    sử dụng docker compose có nhiều serivce 
+    và các thành phần cần thiết để tạo thành ứng dụng:
+     + nodered liên tục lấy dữ liệu từ nguồn nào đó (chứng khoán, thời tiết, giá vàng,...)
+       nguồn thực tế, số liệu luôn động sau thời gian ngắn
+     + nodered lưu trữ dữ liệu vào 2 database: mariadb để lưu giá trị tức thời
+       lưu lịch sử vào influxdb
+     + sử dụng grafana để trực quan hoá dữ liệu: vẽ biểu đồ
+     + sử dụng nginx để làm webserver
+       chạy 1 trang web html+js+css làm front-end
+       js: lấy dữ liệu tức thời trong mariadb qua (ajax | socket) 
+           gọi api (api tự build bằng Flask giống bt1)
+           api trả về giá trị tức thời trong mariadb
+           hiển thị lên web, auto hiển thị số mới khi thay đổi
+       sử dụng iframe để gọi grafana
+       hiển thị biểu đồ dữ liệu lịch sử của thông số đã lưu
+     + QUAN SÁT DỮ LIỆU LỊCH SỬ => GIÁ TRỊ BẤT THƯỜNG
+       (VD MIỀN A..B: OK, DƯỚI A: ALERT LOW, TRÊN B: ALERT HIGH)
+     + nodered: kết hợp bot Telegram
+       khi dữ liệu not OK, thì gửi tin nhắn từ bot => group trên telegram
+       group đã add bot vào: (nhóm đã có 2 người), add thêm 1875746636 thành 3 người
+       mỗi khi bot gửi dữ liệu vào nhóm: mọi member of group đều nhận đc
+       nội dung alert: tường minh, có value gây alert
+
+     xuất tất cả các container ra file nén.
+     xoá mọi container đang chạy
+     load lại các container  từ file nén để khôi phục các container đã xoá
+```
+---
+# BÀI LÀM:
 # A) Phần lý thuyết
-## 1) Docker là gì?
 
-Docker là một nền tảng dùng để đóng gói ứng dụng và toàn bộ môi trường chạy của nó vào trong các container.
+## 1. Docker là gì?
 
-Nói đơn giản:
+Docker là nền tảng mã nguồn mở dùng để đóng gói ứng dụng cùng thư viện và cấu hình cần thiết vào **container**.
 
-- Bạn viết app trên máy của mình
-- App chạy được trên máy bạn
-- Khi mang sang máy khác, app vẫn chạy y như vậy vì đã có đủ thư viện, cấu hình, runtime cần thiết
+Một số khái niệm cơ bản:
 
-**Thành phần cơ bản**
+* **Image:** bản mẫu dùng để tạo container.
+* **Container:** phiên bản đang chạy của image.
+* **Volume:** nơi lưu dữ liệu lâu dài, dữ liệu không mất khi xóa container.
+* **Network:** mạng nội bộ giúp các container giao tiếp với nhau.
 
-- Image: bản mẫu để tạo container
-- Container: môi trường đang chạy từ image
-- Dockerfile: file mô tả cách tạo image
-- Docker Compose: file cấu hình để chạy nhiều container cùng lúc
+Ví dụ chạy container Nginx:
 
-**Ví dụ**
+```bash
+docker run -d --name web nginx:alpine
+```
 
-Nếu có một app Python:
+## 2. Các keyword thường dùng trong `docker-compose.yml`
 
-- Python version
-- thư viện Flask
-- file code app
-- biến môi trường
-
-Tất cả có thể được đóng gói vào Docker để khi chạy ở máy khác không bị lỗi “thiếu thư viện” hay “sai phiên bản”.
-
-## 2) Các keyword trong docker-compose.yml
-
-```docker-compose.yml``` là file dùng để khai báo và quản lý nhiều service trong một ứng dụng.
-
-Các từ khóa thường gặp:
-
-**a) version**
-
-Chỉ định phiên bản cú pháp của file Compose.
+| Keyword          | Ý nghĩa                             | Ví dụ                         |
+| ---------------- | ----------------------------------- | ----------------------------- |
+| `services`       | Khai báo các service trong hệ thống | `services:`                   |
+| `image`          | Chỉ định image để tạo container     | `image: mariadb:11.4`         |
+| `build`          | Build image từ Dockerfile           | `context: ./api`              |
+| `container_name` | Đặt tên container                   | `container_name: monitor_api` |
+| `ports`          | Ánh xạ cổng máy chủ và container    | `"8082:80"`                   |
+| `environment`    | Khai báo biến môi trường            | `DB_HOST: mariadb`            |
+| `env_file`       | Đọc biến môi trường từ file         | `- .env`                      |
+| `volumes`        | Lưu dữ liệu lâu dài                 | `mariadb_data:/var/lib/mysql` |
+| `networks`       | Kết nối các container               | `monitor_network`             |
+| `depends_on`     | Khai báo service phụ thuộc          | `- mariadb`                   |
+| `restart`        | Tự động khởi động lại container     | `unless-stopped`              |
 
 Ví dụ:
 
-```
-version: "3.8"
-```
-
-Ý nghĩa:
-
-Docker Compose sẽ hiểu file theo chuẩn version 3.8.
-
-**b) services**
-
-Dùng để khai báo các container/dịch vụ trong hệ thống.
-
-Ví dụ:
-
-```
+```yaml
 services:
-  web:
-    image: nginx
-  db:
-    image: mariadb
-```
-**Ý nghĩa:**
-
-Trong ứng dụng có 2 service:
-
-- web: chạy nginx
-- db: chạy mariadb
-
-**c) image**
-
-Chỉ định image sẽ dùng để tạo container.
-
-**Ví dụ:**
-
-```
-services:
-  web:
-    image: nginx:alpine
-```
-
-**Ý nghĩa:**
-
-Dùng image nginx:alpine để chạy service web.
-
-**d) build**
-
-Dùng để build image từ Dockerfile.
-
-**Ví dụ:**
-
-```
-services:
-  app:
-    build: .
-```
-
-**Ý nghĩa:**
-
-Docker sẽ đọc Dockerfile trong thư mục hiện tại để tạo image.
-
-**e) container_name**
-
-Đặt tên cụ thể cho container.
-
-**Ví dụ:**
-
-```
-services:
-  app:
-    container_name: my_app
-```
-**Ý nghĩa:**
-
-Container sẽ có tên my_app.
-
-**f) ports**
-
-Map port từ máy host vào container.
-
-**Ví dụ:**
-
-```
-services:
-  web:
+  api:
+    build:
+      context: ./api
+    container_name: monitor_api
     ports:
-      - "8080:80"
-```
-**Ý nghĩa:**
-
-Truy cập localhost:8080 trên máy host sẽ được chuyển vào cổng 80 trong container.
-
-**g) environment**
-
-Khai báo biến môi trường.
-
-**Ví dụ:**
-
-```
-services:
-  db:
+      - "5001:5000"
     environment:
-      MYSQL_ROOT_PASSWORD: 123456
-```
-
-**Ý nghĩa:**
-
-Đặt mật khẩu root cho MariaDB/MySQL.
-
-**h) volumes**
-
-Dùng để lưu dữ liệu bền vững hoặc mount thư mục từ host vào container.
-
-**Ví dụ:**
-
-```
-services:
-  db:
-    volumes:
-      - db_data:/var/lib/mysql
-```
-
-**Ý nghĩa:**
-
-Dữ liệu database được lưu ở volume db_data, không mất khi container bị xoá.
-
-**i) networks**
-
-Khai báo mạng để các container giao tiếp với nhau.
-
-**Ví dụ:**
-
-```
-services:
-  web:
-    networks:
-      - app_net
-  db:
-    networks:
-      - app_net
-```
-**Ý nghĩa:**
-
-web và db cùng nằm trong mạng app_net, nên có thể liên lạc bằng tên service.
-
-**j) depends_on**
-
-Chỉ định service nào cần khởi động trước.
-
-**Ví dụ:**
-
-```
-services:
-  app:
+      DB_HOST: mariadb
     depends_on:
-      - db
+      - mariadb
+    networks:
+      - monitor_network
 ```
 
-**Ý nghĩa:**
-db sẽ được khởi động trước app.
+## 3. Ưu điểm khi triển khai ứng dụng bằng Docker
 
-**Lưu ý:**
+* Ứng dụng chạy ổn định trên nhiều máy khác nhau.
+* Dễ triển khai bằng một lệnh:
 
-depends_on chỉ đảm bảo thứ tự khởi động, không đảm bảo dịch vụ đã sẵn sàng hoàn toàn.
-
-**k) restart**
-
-Quy định chính sách tự khởi động lại container.
-
-**Ví dụ:**
-
-```
-services:
-  app:
-    restart: always
-```
-
-**Ý nghĩa:**
-
-Nếu container lỗi hoặc máy khởi động lại thì container sẽ tự chạy lại.
-
-**l) command**
-
-Ghi đè lệnh mặc định khi container chạy.
-
-**Ví dụ:**
-
-```
-services:
-  app:
-    command: python app.py
-```
-
-**Ý nghĩa:**
-
-Container sẽ chạy lệnh python app.py.
-
-**m) volumes: ở mức gốc**
-
-Khai báo named volume ở ngoài phần services.
-
-**Ví dụ:**
-
-```
-volumes:
-  db_data:
-```
-
-**Ý nghĩa:**
-Tạo volume tên db_data để dùng chung hoặc lưu dữ liệu.
-
-**n) networks: ở mức gốc**
-Khai báo network riêng.
-
-**Ví dụ:**
-
-```
-networks:
-  app_net:
-```
-**Ý nghĩa:**
-
-Tạo network riêng tên app_net.
-
-3) Ưu điểm khi triển khai app bằng Docker là gì?
-a) Chạy ổn định, đồng nhất
-App chạy trên máy nào cũng giống nhau nếu dùng cùng image.
-
-b) Dễ đóng gói và di chuyển
-Chỉ cần mang image/container sang máy khác là chạy được.
-
-c) Tiết kiệm tài nguyên hơn máy ảo
-Docker nhẹ hơn VM vì dùng chung kernel của hệ điều hành.
-
-d) Dễ triển khai nhiều dịch vụ
-Rất phù hợp với hệ thống gồm:
-
-web
-database
-cache
-monitoring
-message broker
-e) Dễ bảo trì và cập nhật
-Chỉ cần sửa Dockerfile / compose rồi rebuild.
-
-f) Tách biệt môi trường
-App không bị ảnh hưởng nhiều bởi môi trường cài đặt trên máy host.
-
-4) Nếu app đã test OK trên laptop cá nhân, muốn triển khai lên máy chủ thật không có internet thì làm thế nào?
-Đây là tình huống offline deployment.
-
-Các bước cơ bản:
-Bước 1: Build image trên máy có internet
-Trên laptop, bạn build image cho từng service.
-
-Ví dụ:
-
-bash
-docker build -t myapp-web:1.0 .
-Hoặc dùng compose:
-
-bash
-docker compose build
-Bước 2: Lưu image ra file
-Xuất image thành file .tar.
-
-Ví dụ:
-
-bash
-docker save -o myapp-web.tar myapp-web:1.0
-Nếu có nhiều image:
-
-bash
-docker save -o all-images.tar image1 image2 image3
-Bước 3: Chuyển file sang máy chủ offline
-Dùng:
-
-USB
-ổ cứng ngoài
-SCP nội bộ nếu có mạng LAN
-công cụ sao chép nội bộ
-Bước 4: Load image vào máy chủ thật
-Trên server offline, nạp lại image từ file tar:
-
-bash
-docker load -i myapp-web.tar
-Bước 5: Copy file compose và dữ liệu cần thiết
-Mang theo:
-
-docker-compose.yml
-.env nếu có
-file cấu hình
-thư mục dữ liệu, nếu dùng volume bind mount
-Bước 6: Chạy container trên server
-bash
+```bash
 docker compose up -d
-Bước 7: Kiểm tra hoạt động
-Dùng:
+```
 
-bash
-docker ps
-docker logs <container_name>
-5) Mẫu câu trả lời ngắn gọn để đưa vào bài
-Bạn có thể viết như sau:
+* Dễ quản lý nhiều service trong cùng hệ thống.
+* Dễ sao lưu và khôi phục ứng dụng.
+* Container nhẹ hơn máy ảo, khởi động nhanh và tiết kiệm tài nguyên.
+* Dễ mở rộng bằng cách bổ sung service mới vào file Compose.
 
-Docker là nền tảng dùng để đóng gói ứng dụng và các thành phần phụ thuộc vào trong container, giúp ứng dụng chạy đồng nhất trên nhiều môi trường.
-File docker-compose.yml dùng để khai báo nhiều service như services, image, build, ports, volumes, networks, environment, depends_on, restart, command... nhằm mô tả hệ thống chạy ứng dụng.
-Ưu điểm của Docker là dễ triển khai, nhẹ hơn máy ảo, chạy đồng nhất, dễ mở rộng và bảo trì.
-Khi muốn triển khai ứng dụng lên máy chủ không có internet, cần build image trên máy có mạng, export image bằng docker save, chuyển file sang server, import lại bằng docker load, sau đó chạy docker compose up -d.
+
+## 4. Triển khai ứng dụng lên máy chủ không có Internet
+
+Sau khi tạo và kiểm thử ứng dụng thành công trên máy cá nhân, thực hiện:
+
+### Bước 1. Xuất Docker image ra file
+
+```bash
+docker image save \
+  -o app-monitor-images.tar \
+  nodered/node-red:latest \
+  mariadb:11.4 \
+  influxdb:2.8.0 \
+  grafana/grafana:12.4 \
+  nginx:alpine \
+  app-monitor-realtime-api:latest
+```
+
+### Bước 2. Chuyển file sang máy chủ
+
+Sao chép các thành phần sau bằng USB, SCP hoặc SFTP:
+
+```text
+app-monitor-images.tar
+docker-compose.yml
+api/
+frontend/
+db/
+.env
+```
+
+### Bước 3. Load image trên máy chủ
+
+```bash
+docker image load -i app-monitor-images.tar
+```
+
+### Bước 4. Khởi động hệ thống
+
+```bash
+docker compose up -d
+```
+
+### Bước 5. Kiểm tra kết quả
+
+```bash
+docker compose ps
+```
+
+Nếu các container đều ở trạng thái `Up` thì quá trình triển khai offline thành công.
+
+
+
+## 5. Kết luận
+
+Docker giúp đóng gói, triển khai và quản lý ứng dụng thuận tiện hơn. Docker Compose giúp chạy nhiều service bằng một file cấu hình duy nhất. Việc xuất và load image giúp triển khai ứng dụng trên máy chủ không có Internet.
 
 
 
